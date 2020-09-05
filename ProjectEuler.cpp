@@ -1,5 +1,6 @@
 // Hi, this is my Project Euler stuff
 
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -75,6 +76,41 @@ void RunEvenFibonacciSum(unsigned long max) {
 
 ////////////////////////////
 
+long long CalcLargestPrimeFactor(long long num) {
+	long long currNum = num;
+	long long max = currNum / 2;
+
+	long long largestPrimeFactor = 0;
+
+	for (long long possiblePrime = 2; possiblePrime <= max; ++possiblePrime) {
+		if (currNum == 1) {
+			break;
+		}
+
+		for (;;) {
+			lldiv_t divRem = lldiv(currNum, possiblePrime);
+			if (divRem.quot == 0) {
+				break;
+			}
+			if (divRem.rem != 0) {
+				break;
+			}
+
+			largestPrimeFactor = possiblePrime;
+			currNum = divRem.quot;
+		}
+	}
+
+	return largestPrimeFactor;
+}
+
+void RunLargestPrimeFactor(long long num) {
+	printf("Largest prime factor of %lld = %lld\n", num, CalcLargestPrimeFactor(num));
+}
+
+
+////////////////////////////
+
 
 
 int main(int argc, char** argv) {
@@ -94,6 +130,10 @@ int main(int argc, char** argv) {
 	case 2:
 		RunEvenFibonacciSum(56);
 		RunEvenFibonacciSum(4000000);
+		break;
+	case 3:
+		RunLargestPrimeFactor(13195UL);
+		RunLargestPrimeFactor(600851475143UL);
 		break;
 	default:
 		printf("'%s' is not a valid problem number!\n\n", problemArg);
