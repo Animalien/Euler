@@ -42,6 +42,37 @@ void RunCalcSumMultiples(int num1, int num2, int max) {
 	printf("Sum of multiples of %d and %d under %d = %d\n", num1, num2, max, CalcSumMultiples(num1, num2, max));
 }
 
+
+////////////////////////////
+
+unsigned long CalcEvenFibonacciSum(unsigned long max) {
+	unsigned long fibPrev = 0;
+	unsigned long fibCurr = 1;
+
+	unsigned long sum = 0;
+
+	for (;;) {
+		if (fibCurr >= max) {
+			break;
+		}
+
+		if ((fibCurr & 1UL) == 0) {
+			sum += fibCurr;
+		}
+
+		unsigned long newFib = fibPrev + fibCurr;
+		fibPrev = fibCurr;
+		fibCurr = newFib;
+	}
+
+	return sum;
+}
+
+void RunEvenFibonacciSum(unsigned long max) {
+	printf("Sum of even Fibonacci numbers below %u = %u\n", max, CalcEvenFibonacciSum(max));
+}
+
+
 ////////////////////////////
 
 
@@ -59,6 +90,10 @@ int main(int argc, char** argv) {
 	case 1:
 		RunCalcSumMultiples(3, 5, 10);
 		RunCalcSumMultiples(3, 5, 1000);
+		break;
+	case 2:
+		RunEvenFibonacciSum(56);
+		RunEvenFibonacciSum(4000000);
 		break;
 	default:
 		printf("'%s' is not a valid problem number!\n\n", problemArg);
