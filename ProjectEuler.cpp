@@ -1,6 +1,7 @@
 // Hi, this is my Project Euler stuff
 
 #include <stdio.h>
+#include <stdlib.h>
 
 
 ////////////////////////////
@@ -38,7 +39,7 @@ int CalcSumMultiples(int num1, int num2, int max) {
 }
 
 void RunCalcSumMultiples(int num1, int num2, int max) {
-	printf("Sum of multiples of %d and %d under %d = %d\n\n", num1, num2, max, CalcSumMultiples(num1, num2, max));
+	printf("Sum of multiples of %d and %d under %d = %d\n", num1, num2, max, CalcSumMultiples(num1, num2, max));
 }
 
 ////////////////////////////
@@ -46,10 +47,23 @@ void RunCalcSumMultiples(int num1, int num2, int max) {
 
 
 int main(int argc, char** argv) {
-	printf("Cool story, bro\n\n");
+	if (argc <= 1) {
+		printf("Usage:  ProjectEuler <problem#>\n\n");
+		return 0;
+	}
 
-	RunCalcSumMultiples(3, 5, 10);
-	RunCalcSumMultiples(3, 5, 1000);
+	const char* problemArg = argv[1];
+	int problemNum = atoi(problemArg);
+	printf("Solving problem #%d\n\n", problemNum);
+	switch (problemNum) {
+	case 1:
+		RunCalcSumMultiples(3, 5, 10);
+		RunCalcSumMultiples(3, 5, 1000);
+		break;
+	default:
+		printf("'%s' is not a valid problem number!\n\n", problemArg);
+		break;
+	}
 
 	return 0;
 }
