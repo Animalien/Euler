@@ -66,8 +66,10 @@ private:
 	}
 };
 
-void TestFactorization(int num, FactorizationCache& cache) {
-	const Factorization& f = cache.Factorize(num);
+static FactorizationCache s_factorizationCache;
+
+void TestFactorization(int num) {
+	const Factorization& f = s_factorizationCache.Factorize(num);
 	printf("%d:  ", num);
 	if (f.empty()) {
 		printf("prime!\n");
@@ -80,13 +82,11 @@ void TestFactorization(int num, FactorizationCache& cache) {
 	}
 }
 
-void TestFactorization(int max) {
-	FactorizationCache cache;
-
-	cache.PopulateCache(max);
+void TestFactorizationRange(int max) {
+	s_factorizationCache.PopulateCache(max);
 
 	for (int i = 2; i <= max; ++i) {
-		TestFactorization(i, cache);
+		TestFactorization(i);
 	}
 }
 
@@ -288,7 +288,7 @@ int main(int argc, char** argv) {
 
 	const char* problemArg = argv[1];
 	if (strcmp(problemArg, "factorization") == 0) {
-		TestFactorization(100);
+		TestFactorizationRange(100);
 		return 0;
 	}
 
