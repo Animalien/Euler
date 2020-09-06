@@ -6,6 +6,7 @@
 
 
 ////////////////////////////
+// Problem 1 - Sum of multiples
 
 int CalcSumMultiples(int num1, int num2, int max) {
 	int mult1 = num1;
@@ -45,6 +46,7 @@ void RunCalcSumMultiples(int num1, int num2, int max) {
 
 
 ////////////////////////////
+// Problem 2 - Even fibonacci sum
 
 unsigned long CalcEvenFibonacciSum(unsigned long max) {
 	unsigned long fibPrev = 0;
@@ -75,6 +77,7 @@ void RunEvenFibonacciSum(unsigned long max) {
 
 
 ////////////////////////////
+// Problem 3 - Largest prime factor
 
 long long CalcLargestPrimeFactor(long long num) {
 	long long currNum = num;
@@ -110,6 +113,7 @@ void RunLargestPrimeFactor(long long num) {
 
 
 ////////////////////////////
+// Problem 4 - Largest palindrome product
 
 bool IsNumPalindrome(int num) {
 	//printf("num %d\n", num);
@@ -170,10 +174,14 @@ void RunLargestPalindromeProduct(int numDigits) {
 
 
 ////////////////////////////
+// Problem 5 - Smallest multiple
 
+bool IsDivisibleBy(int num, int denom) {
+}
 
 void RunSmallestMultiple(int max) {
 }
+
 
 ////////////////////////////
 
