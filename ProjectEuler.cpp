@@ -172,6 +172,12 @@ void RunLargestPalindromeProduct(int numDigits) {
 ////////////////////////////
 
 
+void RunSmallestMultiple(int max) {
+}
+
+////////////////////////////
+
+
 
 int main(int argc, char** argv) {
 	if (argc <= 1) {
@@ -200,6 +206,11 @@ int main(int argc, char** argv) {
 		RunLargestPalindromeProduct(2);
 		RunLargestPalindromeProduct(3);
 		RunLargestPalindromeProduct(4);
+		break;
+	case 5:
+		RunSmallestMultiple(10);
+		RunSmallestMultiple(20);
+		RunSmallestMultiple(30);
 		break;
 	default:
 		printf("'%s' is not a valid problem number!\n\n", problemArg);
