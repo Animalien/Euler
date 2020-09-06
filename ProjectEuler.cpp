@@ -111,6 +111,41 @@ void RunLargestPrimeFactor(long long num) {
 
 ////////////////////////////
 
+bool IsNumPalindrome(int num) {
+	//printf("num %d\n", num);
+
+	const double log = log10((double)num);
+	
+	int numDigits = (int)log + 1;
+	for (;;) {
+		if (numDigits <= 1) {
+			break;
+		}
+
+		const int highDigitDenom = (int)pow(10.0, (double)(numDigits - 1));
+		const int highDigit = num / highDigitDenom;
+		const int lowDigit = num % 10;
+		//printf("%d: %d-%d\n", num, highDigit, lowDigit);
+
+		if (highDigit != lowDigit) {
+			return false;
+		}
+
+		num = (num % highDigitDenom) / 10;
+		numDigits -= 2;
+	}
+
+	return true;
+}
+
+
+void RunLargestPalindromeProduct(int numToTest) {
+	printf("Num %d is %sa palindrome!\n", numToTest, IsNumPalindrome(numToTest) ? "" : "NOT ");
+}
+
+
+////////////////////////////
+
 
 
 int main(int argc, char** argv) {
@@ -134,6 +169,15 @@ int main(int argc, char** argv) {
 	case 3:
 		RunLargestPrimeFactor(13195UL);
 		RunLargestPrimeFactor(600851475143UL);
+		break;
+	case 4:
+		RunLargestPalindromeProduct(122);
+		RunLargestPalindromeProduct(1221);
+		RunLargestPalindromeProduct(9009);
+		RunLargestPalindromeProduct(19009);
+		for (int i = 1; i < 1000; ++i) {
+			RunLargestPalindromeProduct(i);
+		}
 		break;
 	default:
 		printf("'%s' is not a valid problem number!\n\n", problemArg);
