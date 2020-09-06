@@ -138,9 +138,34 @@ bool IsNumPalindrome(int num) {
 	return true;
 }
 
+int CalcLargestPalindromeProduct(int numDigits) {
+	const int min = (int)pow(10.0, (double)(numDigits - 1));
+	const int max = (int)pow(10.0, (double)numDigits) - 1;
 
-void RunLargestPalindromeProduct(int numToTest) {
-	printf("Num %d is %sa palindrome!\n", numToTest, IsNumPalindrome(numToTest) ? "" : "NOT ");
+	int largestProduct = -1;
+
+	for (int num1 = max;  num1 >= min;  --num1) {
+		if ((largestProduct > 0) && ((num1 * num1) < largestProduct)) {
+			break;
+		}
+
+		for (int num2 = num1; num2 >= min; --num2) {
+			int product = num1 * num2;
+			if ((largestProduct > 0) && (product < largestProduct)) {
+				break;
+			}
+
+			if (IsNumPalindrome(product)) {
+				largestProduct = product;
+			}
+		}
+	}
+
+	return largestProduct;
+}
+
+void RunLargestPalindromeProduct(int numDigits) {
+	printf("Largest palindrome product between two numbers of %d digits = %d!\n", numDigits, CalcLargestPalindromeProduct(numDigits));
 }
 
 
@@ -171,13 +196,10 @@ int main(int argc, char** argv) {
 		RunLargestPrimeFactor(600851475143UL);
 		break;
 	case 4:
-		RunLargestPalindromeProduct(122);
-		RunLargestPalindromeProduct(1221);
-		RunLargestPalindromeProduct(9009);
-		RunLargestPalindromeProduct(19009);
-		for (int i = 1; i < 1000; ++i) {
-			RunLargestPalindromeProduct(i);
-		}
+		RunLargestPalindromeProduct(1);
+		RunLargestPalindromeProduct(2);
+		RunLargestPalindromeProduct(3);
+		RunLargestPalindromeProduct(4);
 		break;
 	default:
 		printf("'%s' is not a valid problem number!\n\n", problemArg);
