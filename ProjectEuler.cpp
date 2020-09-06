@@ -16,6 +16,10 @@
 class Factorization : public std::map<int, int> {
 public:
 	Factorization() : std::map<int, int>() { }
+
+	bool IsPrime() const {
+		return ((size() == 1) && (begin()->second == 1));
+	}
 };
 
 class FactorizationCache : public std::map<int, Factorization> {
@@ -45,7 +49,7 @@ private:
 		int prodRemaining = num;
 		for (int i = 2; i <= halfNum; ++i) {
 			const Factorization& f = Factorize(i);
-			if (f.empty()) {
+			if (f.IsPrime()) {
 				// i is prime, so see how many i factors fit into this number
 				int numFactors = 0;
 				for (;;) {
@@ -61,6 +65,9 @@ private:
 				}
 			}
 		}
+		if (newFactorization.empty()) {
+			newFactorization.emplace(num, 1);
+		}
 
 		return newIter;
 	}
@@ -69,17 +76,18 @@ private:
 static FactorizationCache s_factorizationCache;
 
 void TestFactorization(int num) {
-	const Factorization& f = s_factorizationCache.Factorize(num);
 	printf("%d:  ", num);
-	if (f.empty()) {
-		printf("prime!\n");
+
+	const Factorization& f = s_factorizationCache.Factorize(num);
+	if (f.IsPrime()) {
+		printf("prime!  ");
 	}
-	else {
-		for (auto iter = f.begin(); iter != f.end(); ++iter) {
-			printf("(%dn of %d) ", iter->second, iter->first);
-		}
-		printf("\n");
+
+	for (auto iter = f.begin(); iter != f.end(); ++iter) {
+		printf("(%dn of %d) ", iter->second, iter->first);
 	}
+
+	printf("\n");
 }
 
 void TestFactorizationRange(int max) {
