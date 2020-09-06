@@ -10,27 +10,56 @@
 ////////////////////////////
 // General tools
 
+typedef long long BigInt;
+
 ////////////////////////////
 // Factorization
 
-class Factorization : public std::map<int, int> {
+class Factorization : public std::map<BigInt, BigInt> {
 public:
-	Factorization() : std::map<int, int>() { }
+	Factorization() : std::map<BigInt, BigInt>() { }
 
 	bool IsPrime() const {
 		return ((size() == 1) && (begin()->second == 1));
 	}
+
+	void Absorb(const Factorization& other) {
+		for (auto iter = other.begin(); iter != other.end(); ++iter) {
+			Absorb(iter->first, iter->second);
+		}
+	}
+
+	BigInt CalcProduct() const {
+		BigInt product = 1;
+		for (auto iter = begin(); iter != end(); ++iter) {
+			for (BigInt i = 0; i < iter->second; ++i) {
+				product *= iter->first;
+			}
+		}
+		return product;
+	}
+
+private:
+	void Absorb(BigInt number, BigInt numFactors) {
+		auto iter = find(number);
+		if (iter != end()) {
+			iter->second = std::max(iter->second, numFactors);
+		}
+		else {
+			insert(value_type(number, numFactors));
+		}
+	}
 };
 
-class FactorizationCache : public std::map<int, Factorization> {
+class FactorizationCache : public std::map<BigInt, Factorization> {
 public:
-	FactorizationCache() : std::map<int, Factorization>() { }
+	FactorizationCache() : std::map<BigInt, Factorization>() { }
 
-	void PopulateCache(int num) {
+	void PopulateCache(BigInt num) {
 		Factorize(num * 2);
 	}
 
-	const Factorization& Factorize(int num) {
+	const Factorization& Factorize(BigInt num) {
 		iterator fiter = find(num);
 		if (fiter == end()) {
 			fiter = NewFactorize(num);
@@ -40,18 +69,18 @@ public:
 	}
 
 private:
-	iterator NewFactorize(int num) {
+	iterator NewFactorize(BigInt num) {
 		auto newValue = insert(value_type(num, Factorization()));
 		iterator newIter = newValue.first;
 		Factorization& newFactorization = newIter->second;
 
-		const int halfNum = num / 2;
-		int prodRemaining = num;
-		for (int i = 2; i <= halfNum; ++i) {
+		const BigInt halfNum = num / 2;
+		BigInt prodRemaining = num;
+		for (BigInt i = 2; i <= halfNum; ++i) {
 			const Factorization& f = Factorize(i);
 			if (f.IsPrime()) {
 				// i is prime, so see how many i factors fit into this number
-				int numFactors = 0;
+				BigInt numFactors = 0;
 				for (;;) {
 					auto divRem = div(prodRemaining, i);
 					if (divRem.rem != 0) {
@@ -75,8 +104,8 @@ private:
 
 static FactorizationCache s_factorizationCache;
 
-void TestFactorization(int num) {
-	printf("%d:  ", num);
+void TestFactorization(BigInt num) {
+	printf("%lld:  ", num);
 
 	const Factorization& f = s_factorizationCache.Factorize(num);
 	if (f.IsPrime()) {
@@ -84,16 +113,16 @@ void TestFactorization(int num) {
 	}
 
 	for (auto iter = f.begin(); iter != f.end(); ++iter) {
-		printf("(%dn of %d) ", iter->second, iter->first);
+		printf("(%lldn of %lld) ", iter->second, iter->first);
 	}
 
 	printf("\n");
 }
 
-void TestFactorizationRange(int max) {
+void TestFactorizationRange(BigInt max) {
 	s_factorizationCache.PopulateCache(max);
 
-	for (int i = 2; i <= max; ++i) {
+	for (BigInt i = 2; i <= max; ++i) {
 		TestFactorization(i);
 	}
 }
@@ -176,13 +205,13 @@ void RunEvenFibonacciSum(unsigned long max) {
 ////////////////////////////
 // Problem 3 - Largest prime factor
 
-long long CalcLargestPrimeFactor(long long num) {
-	long long currNum = num;
-	long long max = currNum / 2;
+BigInt CalcLargestPrimeFactor(BigInt num) {
+	BigInt currNum = num;
+	BigInt max = currNum / 2;
 
-	long long largestPrimeFactor = 0;
+	BigInt largestPrimeFactor = 0;
 
-	for (long long possiblePrime = 2; possiblePrime <= max; ++possiblePrime) {
+	for (BigInt possiblePrime = 2; possiblePrime <= max; ++possiblePrime) {
 		if (currNum == 1) {
 			break;
 		}
@@ -204,7 +233,7 @@ long long CalcLargestPrimeFactor(long long num) {
 	return largestPrimeFactor;
 }
 
-void RunLargestPrimeFactor(long long num) {
+void RunLargestPrimeFactor(BigInt num) {
 	printf("Largest prime factor of %lld = %lld\n", num, CalcLargestPrimeFactor(num));
 }
 
@@ -273,11 +302,19 @@ void RunLargestPalindromeProduct(int numDigits) {
 ////////////////////////////
 // Problem 5 - Smallest multiple
 
-bool IsDivisibleBy(int num, int denom) {
-	return false;
+BigInt CalcSmallestMultiple(BigInt max) {
+	s_factorizationCache.PopulateCache(max);
+
+	Factorization f;
+	for (BigInt i = 1; i <= max; ++i) {
+		f.Absorb(s_factorizationCache.Factorize(i));
+	}
+
+	return f.CalcProduct();
 }
 
-void RunSmallestMultiple(int max) {
+void RunSmallestMultiple(BigInt max) {
+	printf("Smallest multiple of all numbers from 1 to %lld = %lld\n", max, CalcSmallestMultiple(max));
 }
 
 
