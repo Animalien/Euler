@@ -1,9 +1,98 @@
 // Hi, this is my Project Euler stuff
 
+#include <map>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 
+
+////////////////////////////
+////////////////////////////
+// General tools
+
+////////////////////////////
+// Factorization
+
+class Factorization : public std::map<int, int> {
+public:
+	Factorization() : std::map<int, int>() { }
+};
+
+class FactorizationCache : public std::map<int, Factorization> {
+public:
+	FactorizationCache() : std::map<int, Factorization>() { }
+
+	void PopulateCache(int num) {
+		Factorize(num * 2);
+	}
+
+	const Factorization& Factorize(int num) {
+		iterator fiter = find(num);
+		if (fiter == end()) {
+			fiter = NewFactorize(num);
+		}
+
+		return fiter->second;
+	}
+
+private:
+	iterator NewFactorize(int num) {
+		auto newValue = insert(value_type(num, Factorization()));
+		iterator newIter = newValue.first;
+		Factorization& newFactorization = newIter->second;
+
+		const int halfNum = num / 2;
+		int prodRemaining = num;
+		for (int i = 2; i <= halfNum; ++i) {
+			const Factorization& f = Factorize(i);
+			if (f.empty()) {
+				// i is prime, so see how many i factors fit into this number
+				int numFactors = 0;
+				for (;;) {
+					auto divRem = div(prodRemaining, i);
+					if (divRem.rem != 0) {
+						break;
+					}
+					++numFactors;
+					prodRemaining = divRem.quot;
+				}
+				if (numFactors > 0) {
+					newFactorization.emplace(i, numFactors);
+				}
+			}
+		}
+
+		return newIter;
+	}
+};
+
+void TestFactorization(int num, FactorizationCache& cache) {
+	const Factorization& f = cache.Factorize(num);
+	printf("%d:  ", num);
+	if (f.empty()) {
+		printf("prime!\n");
+	}
+	else {
+		for (auto iter = f.begin(); iter != f.end(); ++iter) {
+			printf("(%dn of %d) ", iter->second, iter->first);
+		}
+		printf("\n");
+	}
+}
+
+void TestFactorization(int max) {
+	FactorizationCache cache;
+
+	cache.PopulateCache(max);
+
+	for (int i = 2; i <= max; ++i) {
+		TestFactorization(i, cache);
+	}
+}
+
+////////////////////////////
+////////////////////////////
+// Problems
 
 ////////////////////////////
 // Problem 1 - Sum of multiples
@@ -177,6 +266,7 @@ void RunLargestPalindromeProduct(int numDigits) {
 // Problem 5 - Smallest multiple
 
 bool IsDivisibleBy(int num, int denom) {
+	return false;
 }
 
 void RunSmallestMultiple(int max) {
@@ -189,11 +279,19 @@ void RunSmallestMultiple(int max) {
 
 int main(int argc, char** argv) {
 	if (argc <= 1) {
-		printf("Usage:  ProjectEuler <problem#>\n\n");
+		printf(
+			"Usages:\n"
+			"  ProjectEuler <problem#>\n"
+			"  ProjectEuler factorization\n");
 		return 0;
 	}
 
 	const char* problemArg = argv[1];
+	if (strcmp(problemArg, "factorization") == 0) {
+		TestFactorization(100);
+		return 0;
+	}
+
 	int problemNum = atoi(problemArg);
 	printf("Solving problem #%d\n\n", problemNum);
 	switch (problemNum) {
