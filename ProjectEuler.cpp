@@ -319,6 +319,27 @@ void RunSmallestMultiple(BigInt max) {
 
 
 ////////////////////////////
+// Problem 6 - Sum square difference
+
+BigInt CalcSumSquareDifference(BigInt max) {
+	BigInt sum = 0;
+	BigInt sumSq = 0;
+	for (BigInt i = 1; i <= max; ++i) {
+		sum += i;
+		sumSq += (i * i);
+	}
+
+	const BigInt sqSum = sum * sum;
+
+	return sqSum - sumSq;
+}
+
+void SumSquareDifference(BigInt max) {
+	printf("Sum square difference of first %lld natural numbers = %lld\n", max, CalcSumSquareDifference(max));
+}
+
+
+////////////////////////////
 
 
 
@@ -362,6 +383,11 @@ int main(int argc, char** argv) {
 		RunSmallestMultiple(10);
 		RunSmallestMultiple(20);
 		RunSmallestMultiple(30);
+		break;
+	case 6:
+		SumSquareDifference(10);
+		SumSquareDifference(20);
+		SumSquareDifference(100);
 		break;
 	default:
 		printf("'%s' is not a valid problem number!\n\n", problemArg);
