@@ -177,6 +177,21 @@ public:
 		m_windowBase += m_windowFlags.size();
 	}
 
+	BigInt FindNthPrime(BigInt n) {
+		const BigInt windowSize = 2 * n;
+		while ((BigInt)size() < n) {
+			FindPrimes(windowSize);
+			//PrintPrimes();
+		}
+		return (*this)[n - 1];
+	}
+
+	void PrintPrimes() {
+		for (auto iter = begin(); iter != end(); ++iter) {
+			printf("%lld ", *iter);
+		}
+	}
+
 
 private:
 	void MarkNonPrimes(BigInt num) {
@@ -208,21 +223,17 @@ private:
 	std::vector<bool>	m_windowFlags;
 };
 
-void TestPrimeFinder(BigInt window) {
-	PrimeFinder finder;
+static PrimeFinder s_primeFinder;
 
-	finder.FindPrimes(window);
+void TestPrimeFinder(BigInt window) {
+	s_primeFinder.FindPrimes(window);
 	printf("Prime finder window of %lld resulted in these primes:  ", window);
-	for (auto iter = finder.begin(); iter != finder.end(); ++iter) {
-		printf("%lld ", *iter);
-	}
+	s_primeFinder.PrintPrimes();
 	printf("\n\n");
 	
-	finder.FindPrimes(window);
+	s_primeFinder.FindPrimes(window);
 	printf("Prime finder window of %lld more resulted in these primes:  ", window);
-	for (auto iter = finder.begin(); iter != finder.end(); ++iter) {
-		printf("%lld ", *iter);
-	}
+	s_primeFinder.PrintPrimes();
 	printf("\n\n");
 }
 
@@ -441,6 +452,18 @@ void SumSquareDifference(BigInt max) {
 
 
 ////////////////////////////
+// Problem 7 - 10001st prime
+
+BigInt CalcNthPrime(BigInt n) {
+	return s_primeFinder.FindNthPrime(n);
+}
+
+void RunNthPrime(BigInt n) {
+	printf("Prime #%lld = %lld\n", n, CalcNthPrime(n));
+}
+
+
+////////////////////////////
 
 
 
@@ -494,6 +517,11 @@ int main(int argc, char** argv) {
 		SumSquareDifference(10);
 		SumSquareDifference(20);
 		SumSquareDifference(100);
+		break;
+	case 7:
+		RunNthPrime(6);
+		RunNthPrime(50);
+		RunNthPrime(10001);
 		break;
 	default:
 		printf("'%s' is not a valid problem number!\n\n", problemArg);
