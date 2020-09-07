@@ -622,6 +622,108 @@ static BigInt s_largestGridGrid[s_largestGridGridSize][s_largestGridGridSize] = 
 	{ 01, 70, 54, 71, 83, 51, 54, 69, 16, 92, 33, 48, 61, 43, 52,  1, 89, 19, 67, 48 },
 };
 
+BigInt CalcLargestGridProduct(BigInt sequenceLength, BigInt xStart, BigInt yStart, BigInt xDelta, BigInt yDelta, BigInt sliceLength) {
+	assert(xDelta == 0 || xDelta == +1 || xDelta == -1);
+	assert(yDelta == 0 || yDelta == +1);
+
+	BigInt largestProduct = 0;
+	BigInt currProduct = 1;
+	BigInt numZeroes = 0;
+
+	std::deque<BigInt> deque;
+	BigInt xPos = xStart;
+	BigInt yPos = yStart;
+	for (BigInt i = 0; i < sliceLength; ++i) {
+		// deincorporate oldest factor
+		if (i >= sequenceLength) {
+			const BigInt oldestFactor = deque.front();
+			if (oldestFactor == 0) {
+				--numZeroes;
+			}
+			else {
+				currProduct /= oldestFactor;
+			}
+			deque.pop_front();
+		}
+
+		// incorporate new factor
+		const BigInt newFactor = s_largestGridGrid[xPos][yPos];
+		if (newFactor == 0) {
+			++numZeroes;
+		}
+		else {
+			currProduct *= newFactor;
+		}
+
+		if ((i >= sequenceLength) && (numZeroes <= 0) && (currProduct > largestProduct)) {
+			largestProduct = currProduct;
+		}
+
+		xPos += xDelta;
+		yPos += yDelta;
+	}
+
+	return largestProduct;
+}
+
+BigInt CalcLargestGridProduct(BigInt sequenceLength, BigInt xStart, BigInt yStart, BigInt xSliceDelta, BigInt ySliceDelta, BigInt sliceLengthStart, BigInt sliceLengthDelta, BigInt numSlices) {
+	assert(xSliceDelta == 0 || xSliceDelta == +1 || xSliceDelta == -1);
+	assert(ySliceDelta == 0 || ySliceDelta == +1);
+
+	BigInt xPos = xStart;
+	BigInt yPos = yStart;
+	BigInt sliceLength = sliceLengthStart;
+
+	BigInt largestProduct = 0;
+	for (BigInt i = 0; i < numSlices; ++i) {
+		const BigInt currProduct = CalcLargestGridProduct(sequenceLength, xPos, yPos, xSliceDelta, ySliceDelta, sliceLength);
+		if (currProduct > largestProduct) {
+			largestProduct = currProduct;
+		}
+
+		xPos += xSliceDelta;
+		yPos += ySliceDelta;
+		sliceLength += sliceLengthDelta;
+	}
+
+	return largestProduct;
+}
+
+BigInt CalcLargestGridProduct(BigInt sequenceLength, BigInt xDelta, BigInt yDelta) {
+	assert(xDelta == 0 || xDelta == +1 || xDelta == -1);
+	assert(yDelta == 0 || yDelta == +1);
+
+	//CalcLargestGridProduct(
+	//		BigInt sequenceLength, 
+	//		BigInt xStart, BigInt yStart, 
+	//		BigInt xSliceDelta, BigInt ySliceDelta, 
+	//		BigInt sliceLengthStart, BigInt sliceLengthDelta, 
+	//		BigInt numSlices)
+
+	BigInt largestProduct = 0;
+
+	if (xDelta < 0) {
+		BigInt product1 = CalcLargestGridProduct(sequenceLength, sequenceLength - 1, 0, +1, 0, sequenceLength, +1, s_largestGridGridSize - sequenceLength + 1);
+		BigInt product2 = CalcLargestGridProduct(sequenceLength, s_largestGridGridSize - 1, 1, 0, +1, s_largestGridGridSize - 1, -1, s_largestGridGridSize - sequenceLength);
+		if (product1 > product2) {
+			largestProduct = product1;
+		}
+		else {
+			largestProduct = product2;
+		}
+	}
+	else if (xDelta == 0) {
+		largestProduct = CalcLargestGridProduct(sequenceLength, 0, 0, +1, 0, s_largestGridGridSize, 0, s_largestGridGridSize);
+	}
+	else if (yDelta == 0) {
+		largestProduct = CalcLargestGridProduct(sequenceLength, 0, 0, 0, +1, s_largestGridGridSize, 0, s_largestGridGridSize);
+	}
+	else {
+	}
+
+	return largestProduct;
+}
+
 BigInt CalcLargestGridProduct(BigInt sequenceLength) {
 }
 
