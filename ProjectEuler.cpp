@@ -5,6 +5,7 @@
 #include <deque>
 #include <map>
 #include <math.h>
+#include <numeric>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
@@ -145,6 +146,13 @@ public:
 		push_back(2);
 	}
 
+	void Reset() {
+		clear();
+		push_back(2);
+		m_windowBase = 3;
+		m_windowOffset = 0;
+	}
+
 	void FindPrimes(BigInt windowSize = 128) {
 		// reinitialize window
 		std::fill(m_windowFlags.begin(), m_windowFlags.end(), true);
@@ -186,6 +194,14 @@ public:
 			//PrintPrimes();
 		}
 		return (*this)[n - 1];
+	}
+
+	void FindPrimesBelow(BigInt max) {
+		if (max <= m_windowBase) {
+			Reset();
+		}
+
+		FindPrimes(max - m_windowBase);
 	}
 
 	void PrintPrimes() {
@@ -563,6 +579,21 @@ void RunSpecialPythagoreanTriplet() {
 
 }
 
+
+////////////////////////////
+// Problem 10 - Summation of primes
+
+BigInt CalcSumOfPrimesBelow(BigInt max) {
+	s_primeFinder.FindPrimesBelow(max);
+	//s_primeFinder.PrintPrimes();
+	return std::accumulate(s_primeFinder.begin(), s_primeFinder.end(), 0LL);
+}
+
+void RunSummationOfPrimes(BigInt max) {
+	printf("Sum of primes under %lld = %lld\n", max, CalcSumOfPrimesBelow(max));
+}
+
+
 ////////////////////////////
 
 
@@ -630,6 +661,13 @@ int main(int argc, char** argv) {
 		break;
 	case 9:
 		RunSpecialPythagoreanTriplet();
+		break;
+	case 10:
+		RunSummationOfPrimes(10);
+		RunSummationOfPrimes(100);
+		RunSummationOfPrimes(2000000);
+		RunSummationOfPrimes(100);
+		RunSummationOfPrimes(10);
 		break;
 	default:
 		printf("'%s' is not a valid problem number!\n\n", problemArg);
