@@ -1,9 +1,12 @@
 // Hi, this is my Project Euler stuff
 
+#include <algorithm>
+#include <assert.h>
 #include <map>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <vector>
 
 
 ////////////////////////////
@@ -126,6 +129,104 @@ void TestFactorizationRange(BigInt max) {
 		TestFactorization(i);
 	}
 }
+
+////////////////////////////
+// PrimeFinder
+
+class PrimeFinder : public std::vector<BigInt> {
+public:
+	PrimeFinder()
+		: std::vector<BigInt>(), m_windowBase(3), m_windowOffset(0) {
+
+		// start the primes list with 2, and start the window base at the very next value, 3
+
+		push_back(2);
+	}
+
+	void FindPrimes(BigInt windowSize = 128) {
+		// reinitialize window
+		std::fill(m_windowFlags.begin(), m_windowFlags.end(), true);
+		m_windowFlags.resize(windowSize, true);
+		assert(std::find(m_windowFlags.begin(), m_windowFlags.end(), false) == m_windowFlags.end());
+		m_windowOffset = 0;
+
+		// mark non-primes based on pre-existing primes
+		//printf("Marking non-primes based on previous non-primes\n");
+		for (auto iter = begin(); iter != end(); ++iter) {
+			MarkNonPrimes(*iter);
+		}
+
+		// walk through window, adding new primes and marking more non-primes as we go
+		//printf("Walking through window to find more primes\n");
+		const BigInt maxPossiblePrime = m_windowBase + m_windowFlags.size();
+		for (BigInt currPossiblePrime = m_windowBase; currPossiblePrime < maxPossiblePrime; ++currPossiblePrime) {
+			const bool isPrime = m_windowFlags[currPossiblePrime - m_windowBase];
+			m_windowOffset++;
+
+			if (isPrime) {
+				//printf("%lld is prime!\n", currPossiblePrime);
+				push_back(currPossiblePrime);
+				MarkNonPrimes(currPossiblePrime);
+			}
+			//else {
+			//	printf("%lld is NOT prime!\n", currPossiblePrime);
+			//}
+		}
+
+		// move window for next time
+		m_windowBase += m_windowFlags.size();
+	}
+
+
+private:
+	void MarkNonPrimes(BigInt num) {
+		//printf("Marking non-primes:  num = %lld\n", num);
+		const BigInt firstNum = m_windowBase + m_windowOffset;
+		//printf("firstNum %lld = base %lld + offset %lld\n", firstNum, m_windowBase, m_windowOffset);
+
+		const auto devRem = lldiv(firstNum, num);
+		//printf("firstNum %lld / %lld =  %lld q, %lld r\n", firstNum, num, devRem.quot, devRem.rem);
+
+		BigInt firstQuot = devRem.quot;
+		if (devRem.rem > 0) {
+			++firstQuot;
+		}
+		//printf("firstQuot = %lld\n", firstQuot);
+
+		BigInt firstNonPrime = firstQuot * num;
+		//printf("firstNonPrime = %lld\n", firstNonPrime);
+		const BigInt maxNonPrime = m_windowBase + m_windowFlags.size();
+
+		for (BigInt currNonPrime = firstNonPrime; currNonPrime < maxNonPrime; currNonPrime += num) {
+			//printf("Marking %lld as non-prime\n", currNonPrime);
+			m_windowFlags[currNonPrime - m_windowBase] = false;
+		}
+	}
+
+	BigInt				m_windowBase;
+	BigInt				m_windowOffset;
+	std::vector<bool>	m_windowFlags;
+};
+
+void TestPrimeFinder(BigInt window) {
+	PrimeFinder finder;
+
+	finder.FindPrimes(window);
+	printf("Prime finder window of %lld resulted in these primes:  ", window);
+	for (auto iter = finder.begin(); iter != finder.end(); ++iter) {
+		printf("%lld ", *iter);
+	}
+	printf("\n\n");
+	
+	finder.FindPrimes(window);
+	printf("Prime finder window of %lld more resulted in these primes:  ", window);
+	for (auto iter = finder.begin(); iter != finder.end(); ++iter) {
+		printf("%lld ", *iter);
+	}
+	printf("\n\n");
+}
+
+
 
 ////////////////////////////
 ////////////////////////////
@@ -348,13 +449,18 @@ int main(int argc, char** argv) {
 		printf(
 			"Usages:\n"
 			"  ProjectEuler <problem#>\n"
-			"  ProjectEuler factorization\n");
+			"  ProjectEuler factorization\n"
+			"  ProjectEuler primeFinder\n");
 		return 0;
 	}
 
 	const char* problemArg = argv[1];
 	if (strcmp(problemArg, "factorization") == 0) {
-		TestFactorizationRange(100);
+		TestFactorizationRange(20);
+		return 0;
+	}
+	else if (strcmp(problemArg, "primeFinder") == 0) {
+		TestPrimeFinder(10);
 		return 0;
 	}
 
