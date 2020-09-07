@@ -544,6 +544,26 @@ void RunLargestProductInSeries(BigInt numDigits) {
 
 
 ////////////////////////////
+// Problem 9 - Special Pythagorean triplet
+
+void RunSpecialPythagoreanTriplet() {
+	for (BigInt a = 1; a < 1000; ++a) {
+		for (BigInt b = a + 1; b < 1000; ++b) {
+			double doubleC = sqrt((double)a * (double)a + (double)b * (double)b);
+			BigInt intC = (BigInt)doubleC;
+			if (doubleC == (double)intC) {
+				printf("Found Pyth triplet:  %lld^2 + %lld^2 = %lld^2;  a+b+c = %lld;  abc = %lld\n", a, b, intC, a+b+intC, a*b*intC);
+				if ((a + b + intC) == 1000) {
+					printf("Found triplet with sum of 1000!\n");
+					return;
+				}
+			}
+		}
+	}
+
+}
+
+////////////////////////////
 
 
 
@@ -607,6 +627,9 @@ int main(int argc, char** argv) {
 		RunLargestProductInSeries(4);
 		RunLargestProductInSeries(10);
 		RunLargestProductInSeries(13);
+		break;
+	case 9:
+		RunSpecialPythagoreanTriplet();
 		break;
 	default:
 		printf("'%s' is not a valid problem number!\n\n", problemArg);
