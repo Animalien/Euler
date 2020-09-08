@@ -635,7 +635,7 @@ BigInt CalcLargestGridProduct(BigInt sequenceLength, BigInt xStart, BigInt yStar
 	BigInt yPos = yStart;
 	for (BigInt i = 0; i < sliceLength; ++i) {
 		// deincorporate oldest factor
-		if (i >= sequenceLength) {
+		if ((BigInt)deque.size() >= sequenceLength) {
 			const BigInt oldestFactor = deque.front();
 			if (oldestFactor == 0) {
 				--numZeroes;
@@ -647,7 +647,7 @@ BigInt CalcLargestGridProduct(BigInt sequenceLength, BigInt xStart, BigInt yStar
 		}
 
 		// incorporate new factor
-		const BigInt newFactor = s_largestGridGrid[xPos][yPos];
+		const BigInt newFactor = s_largestGridGrid[yPos][xPos];
 		if (newFactor == 0) {
 			++numZeroes;
 		}
@@ -655,9 +655,17 @@ BigInt CalcLargestGridProduct(BigInt sequenceLength, BigInt xStart, BigInt yStar
 			currProduct *= newFactor;
 		}
 		deque.push_back(newFactor);
+		//printf("new factor: %lld\n", newFactor);
 
-		if ((i >= sequenceLength) && (numZeroes <= 0) && (currProduct > largestProduct)) {
+		if (((BigInt)deque.size() >= sequenceLength) && (numZeroes <= 0) && (currProduct > largestProduct)) {
 			largestProduct = currProduct;
+			/*
+			printf("%lld:  ", largestProduct);
+			for (auto iter = deque.begin(); iter != deque.end(); ++iter) {
+				printf("%lld ", *iter);
+			}
+			printf("\n");
+			*/
 		}
 
 		xPos += xDelta;
@@ -667,7 +675,13 @@ BigInt CalcLargestGridProduct(BigInt sequenceLength, BigInt xStart, BigInt yStar
 	return largestProduct;
 }
 
-BigInt CalcLargestGridProduct(BigInt sequenceLength, BigInt xStart, BigInt yStart, BigInt xSliceDelta, BigInt ySliceDelta, BigInt sliceLengthStart, BigInt sliceLengthDelta, BigInt numSlices) {
+BigInt CalcLargestGridProduct(
+		BigInt sequenceLength, 
+		BigInt xStart, BigInt yStart, 
+		BigInt xSliceDelta, BigInt ySliceDelta, 
+		BigInt xDelta, BigInt yDelta,
+		BigInt sliceLengthStart, BigInt sliceLengthDelta, 
+		BigInt numSlices) {
 	assert(xSliceDelta == 0 || xSliceDelta == +1 || xSliceDelta == -1);
 	assert(ySliceDelta == 0 || ySliceDelta == +1);
 
@@ -677,7 +691,7 @@ BigInt CalcLargestGridProduct(BigInt sequenceLength, BigInt xStart, BigInt yStar
 
 	BigInt largestProduct = 0;
 	for (BigInt i = 0; i < numSlices; ++i) {
-		const BigInt currProduct = CalcLargestGridProduct(sequenceLength, xPos, yPos, xSliceDelta, ySliceDelta, sliceLength);
+		const BigInt currProduct = CalcLargestGridProduct(sequenceLength, xPos, yPos, xDelta, yDelta, sliceLength);
 		if (currProduct > largestProduct) {
 			largestProduct = currProduct;
 		}
@@ -694,37 +708,45 @@ BigInt CalcLargestGridProduct(BigInt sequenceLength) {
 	BigInt largestProduct = 0;
 	BigInt product;
 
-	// upper-right-to-lower-left diagonal slices
-	product = CalcLargestGridProduct(sequenceLength, sequenceLength - 1, 0, +1, 0, sequenceLength, +1, s_largestGridGridSize - sequenceLength + 1);
-	if (product > largestProduct) {
-		largestProduct = product;
-	}
-	product = CalcLargestGridProduct(sequenceLength, s_largestGridGridSize - 1, 1, 0, +1, s_largestGridGridSize - 1, -1, s_largestGridGridSize - sequenceLength);
-	if (product > largestProduct) {
-		largestProduct = product;
-	}
-
-	// top-to-bottom slices
-	product = CalcLargestGridProduct(sequenceLength, 0, 0, +1, 0, s_largestGridGridSize, 0, s_largestGridGridSize);
-	if (product > largestProduct) {
-		largestProduct = product;
-	}
-
+#if 1
 	// left-to-right slices
-	product = CalcLargestGridProduct(sequenceLength, 0, 0, 0, +1, s_largestGridGridSize, 0, s_largestGridGridSize);
+	product = CalcLargestGridProduct(sequenceLength, 0, 0, 0, +1, +1, 0, s_largestGridGridSize, 0, s_largestGridGridSize);
 	if (product > largestProduct) {
 		largestProduct = product;
 	}
+#endif
 
+#if 1
+	// top-to-bottom slices
+	product = CalcLargestGridProduct(sequenceLength, 0, 0, +1, 0, 0, +1, s_largestGridGridSize, 0, s_largestGridGridSize);
+	if (product > largestProduct) {
+		largestProduct = product;
+	}
+#endif
+
+#if 1
 	// upper-left-to-lower-right diagonal slices
-	product = CalcLargestGridProduct(sequenceLength, 0, 0, +1, 0, s_largestGridGridSize, -1, s_largestGridGridSize - sequenceLength + 1);
+	product = CalcLargestGridProduct(sequenceLength, 0, 0, +1, 0, +1, +1, s_largestGridGridSize, -1, s_largestGridGridSize - sequenceLength + 1);
 	if (product > largestProduct) {
 		largestProduct = product;
 	}
-	product = CalcLargestGridProduct(sequenceLength, 0, 1, 0, +1, s_largestGridGridSize - 1, -1, s_largestGridGridSize - sequenceLength);
+	product = CalcLargestGridProduct(sequenceLength, 0, 1, 0, +1, +1, +1, s_largestGridGridSize - 1, -1, s_largestGridGridSize - sequenceLength);
 	if (product > largestProduct) {
 		largestProduct = product;
 	}
+#endif
+
+#if 1
+	// upper-right-to-lower-left diagonal slices
+	product = CalcLargestGridProduct(sequenceLength, sequenceLength - 1, 0, +1, 0, -1, +1, sequenceLength, +1, s_largestGridGridSize - sequenceLength + 1);
+	if (product > largestProduct) {
+		largestProduct = product;
+	}
+	product = CalcLargestGridProduct(sequenceLength, s_largestGridGridSize - 1, 1, 0, +1, -1, +1, s_largestGridGridSize - 1, -1, s_largestGridGridSize - sequenceLength);
+	if (product > largestProduct) {
+		largestProduct = product;
+	}
+#endif
 
 	return largestProduct;
 }
@@ -811,8 +833,8 @@ int main(int argc, char** argv) {
 		break;
 	case 11:
 		RunLargestGridProduct(1);
-		//RunLargestGridProduct(2);
-		//RunLargestGridProduct(4);
+		RunLargestGridProduct(2);
+		RunLargestGridProduct(4);
 		break;
 	default:
 		printf("'%s' is not a valid problem number!\n\n", problemArg);
