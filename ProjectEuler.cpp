@@ -45,6 +45,32 @@ public:
 		return product;
 	}
 
+	void PrintFactors() const {
+		for (auto iter = begin(); iter != end(); ++iter) {
+			printf("(%lldn of %lld) ", iter->second, iter->first);
+		}
+	}
+
+	BigInt CalcNumDivisors() const {
+		if (IsPrime()) {
+			// if prime, then number of divisors is simply:  1, and itself
+			return 2;
+		}
+
+		BigInt numDivisors = 1;
+		// the number of divisors will be the numbers of combinations of prime factors.
+		// in a given divisor, each prime factor can be included from 0 to N times, where
+		// N is the number of times that prime factor exists in the original number.
+		// (the divisor with ZERO of any prime factors included, is the divisor 1, which every number has.)
+		for (auto iter = begin(); iter != end(); ++iter) {
+			numDivisors *= (iter->second + 1);
+		}
+		// add 1 more for the original number, being one of its own divisors
+		numDivisors += 1;
+
+		return numDivisors;
+	}
+
 private:
 	void Absorb(BigInt number, BigInt numFactors) {
 		auto iter = find(number);
@@ -118,9 +144,7 @@ void TestFactorization(BigInt num) {
 		printf("prime!  ");
 	}
 
-	for (auto iter = f.begin(); iter != f.end(); ++iter) {
-		printf("(%lldn of %lld) ", iter->second, iter->first);
-	}
+	f.PrintFactors();
 
 	printf("\n");
 }
@@ -756,6 +780,36 @@ void RunLargestGridProduct(BigInt sequenceLength) {
 }
 
 
+
+////////////////////////////
+// Problem 11 - Highly divisible triangle number
+
+BigInt CalcFirstHighlyDivTriNumber(BigInt moreThanNumDivisors) {
+	BigInt triangleNumber = 1;
+	BigInt nextNaturalNumber = 2;
+	printf("Triangle number #1 = %lld\n", triangleNumber);
+
+	for (;;) {
+		triangleNumber = triangleNumber + nextNaturalNumber;
+		printf("Triangle number #%lld = %lld\n", nextNaturalNumber, triangleNumber);
+		nextNaturalNumber++;
+
+		const Factorization& f = s_factorizationCache.Factorize(triangleNumber);
+		if (f.CalcNumDivisors() > moreThanNumDivisors) {
+			printf("Found more than %lld divisors.  Prime factors:  ", moreThanNumDivisors);
+			f.PrintFactors();
+			printf("\n");
+			break;
+		}
+	}
+
+	return triangleNumber;
+}
+
+void RunHighlyDivisibleTriangleNumber(BigInt moreThanNumDivisors) {
+	printf("The first triangle number to have more than %lld divisors = %lld\n", moreThanNumDivisors, CalcFirstHighlyDivTriNumber(moreThanNumDivisors));
+}
+
 ////////////////////////////
 
 
@@ -835,6 +889,12 @@ int main(int argc, char** argv) {
 		RunLargestGridProduct(1);
 		RunLargestGridProduct(2);
 		RunLargestGridProduct(4);
+		break;
+	case 12:
+		RunHighlyDivisibleTriangleNumber(2);
+		RunHighlyDivisibleTriangleNumber(5);
+		RunHighlyDivisibleTriangleNumber(100);
+		//RunHighlyDivisibleTriangleNumber(500);
 		break;
 	default:
 		printf("'%s' is not a valid problem number!\n\n", problemArg);
