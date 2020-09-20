@@ -788,30 +788,39 @@ void RunLargestGridProduct(BigInt sequenceLength) {
 ////////////////////////////
 // Problem 11 - Highly divisible triangle number
 
-BigInt CalcFirstHighlyDivTriNumber(BigInt moreThanNumDivisors) {
+BigInt CalcFirstHighlyDivTriNumber(BigInt moreThanNumDivisors, bool verbose) {
 	BigInt triangleNumber = 1;
 	BigInt nextNaturalNumber = 2;
-	printf("Triangle number #1 = %lld\n", triangleNumber);
+	if (verbose) {
+		printf("Triangle number #1 = %lld\n", triangleNumber);
+	}
 
 	for (;;) {
 		triangleNumber = triangleNumber + nextNaturalNumber;
-		printf("Triangle number #%lld = %lld\n", nextNaturalNumber, triangleNumber);
+		if (verbose) {
+			printf("Triangle number #%lld = %lld", nextNaturalNumber, triangleNumber);
+		}
 		nextNaturalNumber++;
 
 		const Factorization& f = s_factorizationCache.Factorize(triangleNumber);
-		if (f.CalcNumDivisors() > moreThanNumDivisors) {
-			printf("Found more than %lld divisors.  Prime factors:  ", moreThanNumDivisors);
+		BigInt numDivisors = f.CalcNumDivisors();
+		if (numDivisors > moreThanNumDivisors) {
+			printf("\nFound more than %lld divisors (%lld).  Prime factors:  ", moreThanNumDivisors, numDivisors);
 			f.PrintFactors();
 			printf("\n");
 			break;
+		}
+
+		if (verbose) {
+			printf(", numDivisors = %lld\n", numDivisors);
 		}
 	}
 
 	return triangleNumber;
 }
 
-void RunHighlyDivisibleTriangleNumber(BigInt moreThanNumDivisors) {
-	printf("The first triangle number to have more than %lld divisors = %lld\n", moreThanNumDivisors, CalcFirstHighlyDivTriNumber(moreThanNumDivisors));
+void RunHighlyDivisibleTriangleNumber(BigInt moreThanNumDivisors, bool verbose) {
+	printf("The first triangle number to have more than %lld divisors = %lld\n", moreThanNumDivisors, CalcFirstHighlyDivTriNumber(moreThanNumDivisors, verbose));
 }
 
 ////////////////////////////
@@ -900,10 +909,10 @@ int main(int argc, char** argv) {
 		RunLargestGridProduct(4);
 		break;
 	case 12:
-		RunHighlyDivisibleTriangleNumber(2);
-		RunHighlyDivisibleTriangleNumber(5);
-		RunHighlyDivisibleTriangleNumber(100);
-		//RunHighlyDivisibleTriangleNumber(500);
+		RunHighlyDivisibleTriangleNumber(2, true);
+		RunHighlyDivisibleTriangleNumber(5, true);
+		RunHighlyDivisibleTriangleNumber(100, false);
+		RunHighlyDivisibleTriangleNumber(500, true);
 		break;
 	default:
 		printf("'%s' is not a valid problem number!\n\n", problemArg);
