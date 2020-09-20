@@ -302,18 +302,32 @@ public:
 		return m_string.c_str();
 	}
 
-	HugeInt operator+ (const HugeInt& other) const {
-		const HugeInt*const list[2] = { this, &other };
-		return CalcSum<2>(list);
+	void PrintDigits(BigInt numDigits) const {
+		SetForwards();
+
+		const BigInt totalNumDigits = GetNumDigits();
+		if (numDigits >= totalNumDigits) {
+			printf("%s", m_string.c_str());
+		}
+		else {
+			printf("%s", m_string.substr(0, numDigits).c_str());
+		}
 	}
 
-	template <int NumItems>
-	static HugeInt CalcSum(const HugeInt list[NumItems]) {
-		return CalcSum(ListIterator(list, NumItems));
+	BigInt GetNumDigits() const {
+		return m_string.length();
 	}
-	template <int NumItems>
-	static HugeInt CalcSum(const HugeInt*const list[NumItems]) {
-		return CalcSum(ListIterator(list, NumItems));
+
+	HugeInt operator+ (const HugeInt& other) const {
+		const HugeInt* list[2] = { this, &other };
+		return CalcSum(list, 2);
+	}
+
+	static HugeInt CalcSum(const HugeInt* list, BigInt numItems) {
+		return CalcSum(ListIterator(list, numItems));
+	}
+	static HugeInt CalcSum(const HugeInt*const* list, BigInt numItems) {
+		return CalcSum(ListIterator(list, numItems));
 	}
 
 private:
@@ -1020,7 +1034,7 @@ void RunHighlyDivisibleTriangleNumber(BigInt moreThanNumDivisors, bool verbose) 
 ////////////////////////////
 // Problem 13 - Large sum
 
-static HugeInt s_largeSumTable[] = {
+static const HugeInt s_largeSumTable[] = {
 	"37107287533902102798797998220837590246510135740250",
 	"46376937677490009712648124896970078050417018260538",
 	"74324986199524741059474233309513058123726617309629",
@@ -1124,6 +1138,11 @@ static HugeInt s_largeSumTable[] = {
 };
 
 void RunFirstDigitsOfLargeSum(BigInt numDigits) {
+	const HugeInt sum = HugeInt::CalcSum(s_largeSumTable, sizeof(s_largeSumTable) / sizeof(s_largeSumTable[0]));
+	printf("Sum of huge numbers in table = %s (total num digits = %lld)\n", sum.GetString(), sum.GetNumDigits());
+	printf("First %lld digits = ", numDigits);
+	sum.PrintDigits(numDigits);
+	printf("\n");
 }
 
 
