@@ -1147,6 +1147,50 @@ void RunFirstDigitsOfLargeSum(BigInt numDigits) {
 
 
 ////////////////////////////
+// Problem 14 - Longest Collatz sequence
+
+BigInt CalcLengthCollatzSequence(BigInt num) {
+	printf("%lld", num);
+	BigInt len = 1;
+
+	while (num > 1) {
+		if (num & 1) {
+			// odd
+			num = 3 * num + 1;
+		}
+		else {
+			// even
+			num = num >> 1;
+		}
+
+		printf(" -> %lld", num);
+		++len;
+	}
+
+	printf(" (len = %lld)\n", len);
+
+	return len;
+}
+
+BigInt FindLongestCollatzSequence(BigInt max) {
+	BigInt numOfLongest = -1;
+	BigInt longestSequence = 0;
+	for (BigInt num = 1; num < max; ++num) {
+		const BigInt len = CalcLengthCollatzSequence(num);
+		if (len > longestSequence) {
+			numOfLongest = num;
+			longestSequence = len;
+		}
+	}
+
+	return numOfLongest;
+}
+
+void RunLongestCollatzSequence(BigInt max) {
+	printf("Longest Collatz sequence under %lld results from starting with the number %lld\n", max, FindLongestCollatzSequence(max));
+}
+
+////////////////////////////
 
 
 
@@ -1243,6 +1287,12 @@ int main(int argc, char** argv) {
 		break;
 	case 13:
 		RunFirstDigitsOfLargeSum(10);
+		break;
+	case 14:
+		RunLongestCollatzSequence(5);
+		RunLongestCollatzSequence(20);
+		//RunLongestCollatzSequence(100);
+		//RunLongestCollatzSequence(1000000);
 		break;
 	default:
 		printf("'%s' is not a valid problem number!\n\n", problemArg);
