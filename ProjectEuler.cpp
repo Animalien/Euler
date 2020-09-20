@@ -125,6 +125,10 @@ private:
 					newFactorization.emplace(i, numFactors);
 				}
 			}
+
+			if (prodRemaining == 1) {
+				break;
+			}
 		}
 		if (newFactorization.empty()) {
 			newFactorization.emplace(num, 1);
@@ -826,7 +830,12 @@ int main(int argc, char** argv) {
 
 	const char* problemArg = argv[1];
 	if (strcmp(problemArg, "factorization") == 0) {
-		TestFactorizationRange(20);
+		if (argc >= 3) {
+			TestFactorization(atoi(argv[2]));
+		}
+		else {
+			TestFactorizationRange(20);
+		}
 		return 0;
 	}
 	else if (strcmp(problemArg, "primeFinder") == 0) {
