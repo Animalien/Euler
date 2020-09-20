@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
+#include <utility>
 #include <vector>
 
 
@@ -294,6 +295,11 @@ public:
 	HugeInt(const char* st) : m_string(st), m_backwards(false) { }
 	HugeInt(std::string st) : m_string(st), m_backwards(false) { }
 
+	void Reset() {
+		m_string.clear();
+		m_backwards = true;
+	}
+
 	void Print() const {
 		printf("%s", GetString());
 	}
@@ -329,6 +335,38 @@ public:
 	static HugeInt CalcSum(const HugeInt*const* list, BigInt numItems) {
 		return CalcSum(ListIterator(list, numItems));
 	}
+
+	void Swap(HugeInt& other) {
+		m_string.swap(other.m_string);
+		std::swap(m_backwards, other.m_backwards);
+	}
+
+	void SetToProduct(const HugeInt& leftSide, BigInt rightSide) {
+		assert((rightSide > 0) && (rightSide < 10));		// only single digit multiplication implemented yet (and zero is pointless)
+
+		Reset();
+
+		BigInt carryOver = 0;
+		for (ConstIterator iter(leftSide); !iter.IsAtEnd(); iter.Increment()) {
+			const BigInt digit = iter.GetDigit();
+			const BigInt num = digit * rightSide + carryOver;
+
+			const lldiv_t divRem = lldiv(num, 10);
+			const char outputDigit = (char)(divRem.rem + '0');
+			m_string.push_back(outputDigit);
+
+			carryOver = divRem.quot;
+		}
+
+		while (carryOver > 0) {
+			const lldiv_t divRem = lldiv(carryOver, 10);
+			const char outputDigit = (char)(divRem.rem + '0');
+			m_string.push_back(outputDigit);
+
+			carryOver = divRem.quot;
+		}
+	}
+
 
 private:
 	void SetForwards() const {
@@ -489,6 +527,12 @@ void TestHugeInt() {
 	HugeInt n3 = 52;
 
 	printf("TestHugeInt:  n1 = %s, n2 = %s, n3 = %s, n1 + n2 = %s, n1 + n2 + n3 = %s\n", n1.GetString(), n2.GetString(), n3.GetString(), (n1 + n2).GetString(), (n1 + n2 + n3).GetString());
+
+	HugeInt product1, product2, product3;
+	product1.SetToProduct(n1, 2);
+	product2.SetToProduct(n2, 2);
+	product3.SetToProduct(n3, 2);
+	printf("TestHugeInt product:  n1 * 2 = %s, n2 * 2 = %s, n3 * 2 = %s\n", product1.GetString(), product2.GetString(), product3.GetString());
 }
 
 
