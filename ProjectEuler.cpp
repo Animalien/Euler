@@ -1193,9 +1193,70 @@ void RunLongestCollatzSequence(BigInt max) {
 	printf("Longest Collatz sequence under %lld results from starting with the number %lld\n", max, FindLongestCollatzSequence(max));
 }
 
+
 ////////////////////////////
+// Problem 15 - Lattice paths
+
+// The way to solve this is to think about the diagonal of points
+// across the square grid, from lower left to upper right.
+// If the grid is N units along each side, then this diagonal
+// will be N+1 points in length.
+// The total number of paths through the grid is equal to 
+// the sum of the numbers of paths through each of the diagonal
+// points.
+// For a given single diagonal point, the number of paths through it
+// is equal to the number of paths that could arrive at the point,
+// times the number of paths that could lead away from the point.
+// The path grid is symmetrical about the diagonal, so for each
+// diagonal point you can simply consider how many paths go from 
+// that point to the destination corner, and multiply that number
+// times itself.
+// At this point you can break down the path calculation as a
+// recursive function.
+// Along a diagonal string of points, the end points only each have
+// a single path to get them home.  The middle points have a number
+// of paths equal to the number of paths along its "left route" plus
+// the number of paths along its "right route".
+
+BigInt CalcNumLatticePathsFromPoint(BigInt pointIndex, BigInt numPoints) {
+	if ((pointIndex <= 0) || (pointIndex >= (numPoints - 1))) {
+		// this is an edge point, and it only has one possible path back home,
+		// as it gets "corralled" by the converging edges of the grid.
+		return 1;
+	}
+
+	// otherwise this is a middle point, and the num paths is equal to
+	// the num paths on the "left" side plus the num paths on the "right" side.
+	// either side is going to take us into the "next diagonal", which has one
+	// less number of points than this one.
+
+	const BigInt numLeftSidePaths = CalcNumLatticePathsFromPoint(pointIndex - 1, numPoints - 1);
+	const BigInt numRightSidePaths = CalcNumLatticePathsFromPoint(pointIndex, numPoints - 1);
+
+	return numLeftSidePaths + numRightSidePaths;
+}
+
+BigInt CalcNumLatticePaths(BigInt gridSize) {
+	const BigInt diagonalLength = gridSize + 1;
+
+	BigInt numPaths = 0;
+	for (BigInt i = 0; i < diagonalLength; ++i) {
+		const BigInt numPathsFromPoint = CalcNumLatticePathsFromPoint(i, diagonalLength);
+		const BigInt numPathsThroughPoint = numPathsFromPoint * numPathsFromPoint;
+
+		numPaths += numPathsThroughPoint;
+	}
+
+	return numPaths;
+}
+
+void RunLatticePaths(BigInt gridSize) {
+	printf("Num paths through a grid of size %lld = %lld\n", gridSize, CalcNumLatticePaths(gridSize));
+}
 
 
+////////////////////////////
+// Main
 
 int main(int argc, char** argv) {
 	if (argc <= 1) {
@@ -1298,6 +1359,12 @@ int main(int argc, char** argv) {
 		RunLongestCollatzSequence(10000);
 		RunLongestCollatzSequence(100000);
 		RunLongestCollatzSequence(1000000);
+		break;
+	case 15:
+		RunLatticePaths(2);
+		RunLatticePaths(4);
+		RunLatticePaths(10);
+		RunLatticePaths(20);
 		break;
 	default:
 		printf("'%s' is not a valid problem number!\n\n", problemArg);
