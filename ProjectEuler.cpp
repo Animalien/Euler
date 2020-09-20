@@ -472,8 +472,9 @@ private:
 void TestHugeInt() {
 	HugeInt n1 = 135;
 	HugeInt n2 = "2005";
+	HugeInt n3 = 52;
 
-	printf("TestHugeInt:  n1 = %s, n2 = %s, n1 + n2 = %s\n", n1.GetString(), n2.GetString(), (n1 + n2).GetString());
+	printf("TestHugeInt:  n1 = %s, n2 = %s, n3 = %s, n1 + n2 = %s, n1 + n2 + n3 = %s\n", n1.GetString(), n2.GetString(), n3.GetString(), (n1 + n2).GetString(), (n1 + n2 + n3).GetString());
 }
 
 
