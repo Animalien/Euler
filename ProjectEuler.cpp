@@ -324,6 +324,17 @@ public:
 		return m_string.length();
 	}
 
+	BigInt CalcSumDigits() const {
+		BigInt sum = 0;
+		ConstIterator iter(*this);
+		while (!iter.IsAtEnd()) {
+			sum += iter.GetDigit();
+			iter.Increment();
+		}
+
+		return sum;
+	}
+
 	HugeInt operator+ (const HugeInt& other) const {
 		const HugeInt* list[2] = { this, &other };
 		return CalcSum(list, 2);
@@ -1300,6 +1311,32 @@ void RunLatticePaths(BigInt gridSize) {
 
 
 ////////////////////////////
+// Problem 16 - Power digit sum
+
+HugeInt CalcPower2Num(BigInt power) {
+	HugeInt result = 1;
+	HugeInt newProduct;
+
+	for (BigInt i = 0; i < power; ++i) {
+		newProduct.SetToProduct(result, 2);
+		result.Swap(newProduct);
+	}
+
+	return result;
+}
+
+BigInt CalcPowerDigitSum(BigInt power) {
+	HugeInt num = CalcPower2Num(power);
+	printf("2 ^ %lld = %s\n", power, num.GetString());
+	return num.CalcSumDigits();
+}
+
+void RunPowerDigitSum(BigInt power) {
+	printf("Power digit sum of 2^%lld = %lld\n", power, CalcPowerDigitSum(power));
+}
+
+
+////////////////////////////
 // Main
 
 int main(int argc, char** argv) {
@@ -1409,6 +1446,12 @@ int main(int argc, char** argv) {
 		RunLatticePaths(4);
 		RunLatticePaths(10);
 		RunLatticePaths(20);
+		break;
+	case 16:
+		RunPowerDigitSum(3);
+		RunPowerDigitSum(15);
+		RunPowerDigitSum(100);
+		RunPowerDigitSum(1000);
 		break;
 	default:
 		printf("'%s' is not a valid problem number!\n\n", problemArg);
