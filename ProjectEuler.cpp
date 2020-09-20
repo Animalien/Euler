@@ -114,7 +114,7 @@ private:
 				// i is prime, so see how many i factors fit into this number
 				BigInt numFactors = 0;
 				for (;;) {
-					auto divRem = div(prodRemaining, i);
+					const lldiv_t divRem = lldiv(prodRemaining, i);
 					if (divRem.rem != 0) {
 						break;
 					}
@@ -284,6 +284,198 @@ void TestPrimeFinder(BigInt window) {
 }
 
 
+////////////////////////////
+// HugeInt
+
+class HugeInt {
+public:
+	HugeInt() : m_backwards(true) { }
+	HugeInt(BigInt num) : m_string(std::to_string(num)), m_backwards(false) { }
+	HugeInt(const char* st) : m_string(st), m_backwards(false) { }
+	HugeInt(std::string st) : m_string(st), m_backwards(false) { }
+
+	void Print() const {
+		printf("%s", GetString());
+	}
+	const char* GetString() const {
+		SetForwards();
+		return m_string.c_str();
+	}
+
+	HugeInt operator+ (const HugeInt& other) const {
+		const HugeInt*const list[2] = { this, &other };
+		return CalcSum<2>(list);
+	}
+
+	template <int NumItems>
+	static HugeInt CalcSum(const HugeInt list[NumItems]) {
+		return CalcSum(ListIterator(list, NumItems));
+	}
+	template <int NumItems>
+	static HugeInt CalcSum(const HugeInt*const list[NumItems]) {
+		return CalcSum(ListIterator(list, NumItems));
+	}
+
+private:
+	void SetForwards() const {
+		if (m_backwards) {
+			Flip();
+		}
+	}
+	void SetBackwards() const {
+		if (!m_backwards) {
+			Flip();
+		}
+	}
+
+	void Flip() const {
+		std::reverse(m_string.begin(), m_string.end());
+		m_backwards = !m_backwards;
+	}
+
+	class ConstIterator {
+	public:
+		// Note: This iterator iterates from ones place on up to increasing digit place values.
+		//			For example, with the int "451", we will iterate thusly:  "1", then "5", then "4"
+
+		ConstIterator(const HugeInt& parent) : m_string(parent.m_string) {
+			if (parent.m_backwards) {
+				// the int is already backwards, so just interate from start to finish
+				m_index = 0;
+				m_endIndex = m_string.length();
+				m_increment = +1;
+			}
+			else {
+				// the int is not backwards, i.e. it is in readable form, so we must iterate backwards from the end
+				m_index = m_string.length() - 1;
+				m_endIndex = -1;
+				m_increment = -1;
+			}
+		}
+
+		bool IsAtEnd() const {
+			return (m_index == m_endIndex);
+		}
+		void Increment() {
+			if (!IsAtEnd()) {
+				m_index += m_increment;
+			}
+		}
+
+		BigInt GetDigit() const {
+			if (IsAtEnd()) {
+				return 0;
+			}
+			return (BigInt)m_string[m_index] - (BigInt)'0';
+		}
+
+
+	private:
+		const std::string&	m_string;
+		BigInt				m_index;
+		BigInt				m_endIndex;
+		BigInt				m_increment;
+	};
+
+	class ListIterator {
+	public:
+		ListIterator(const HugeInt* itemList, BigInt numItems) : m_ptr(itemList), m_ptrptr(nullptr), m_num(numItems) {
+		}
+		ListIterator(const HugeInt*const* itemList, BigInt numItems) : m_ptr(nullptr), m_ptrptr(itemList), m_num(numItems) {
+		}
+
+		BigInt GetNum() const {
+			return m_num;
+		}
+
+		bool IsAtEnd() const {
+			return (m_num <= 0);
+		}
+		void Increment() {
+			if (IsAtEnd()) {
+				return;
+			}
+
+			if (m_ptr) {
+				++m_ptr;
+			}
+			else {
+				++m_ptrptr;
+			}
+			--m_num;
+		}
+
+		const HugeInt& operator*() const {
+			if (m_ptr) {
+				return *m_ptr;
+			}
+			else {
+				return **m_ptrptr;
+			}
+		}
+
+	private:
+		const HugeInt*			m_ptr;
+		const HugeInt*const*	m_ptrptr;
+		BigInt					m_num;
+	};
+
+	static HugeInt CalcSum(ListIterator& listIter) {
+		std::vector<ConstIterator> iterList;
+		iterList.reserve(listIter.GetNum());
+
+		// populate the list of individual iterators
+		for (; !listIter.IsAtEnd(); listIter.Increment()) {
+			iterList.push_back(ConstIterator(*listIter));
+		}
+
+		HugeInt sum;
+		BigInt carryOver = 0;
+
+		// now iterate through the digits, starting from ones' place,
+		// adding each input number's contribution from that digit,
+		// and including any carry-over from previous digits
+
+		for (;;) {
+			bool haveMoreDigits = false;
+			BigInt digitSum = carryOver;
+
+			for (auto iterListIter = iterList.begin(); iterListIter != iterList.end(); ++iterListIter) {
+				ConstIterator& currIter = *iterListIter;
+				digitSum += currIter.GetDigit();
+				currIter.Increment();
+				if (!currIter.IsAtEnd()) {
+					haveMoreDigits = true;
+				}
+			}
+
+			if ((digitSum <= 0) && !haveMoreDigits) {
+				// we are done!
+				break;
+			}
+
+			const lldiv_t divRem = lldiv(digitSum, 10);
+			const char newDigit = (char)(divRem.rem + '0');
+			sum.m_string += newDigit;
+
+			carryOver = divRem.quot;
+		}
+
+		return sum;
+	}
+
+	mutable std::string		m_string;
+	mutable bool			m_backwards;
+};
+
+
+void TestHugeInt() {
+	HugeInt n1 = 135;
+	HugeInt n2 = "2005";
+
+	printf("TestHugeInt:  n1 = %s, n2 = %s, n1 + n2 = %s\n", n1.GetString(), n2.GetString(), (n1 + n2).GetString());
+}
+
 
 ////////////////////////////
 ////////////////////////////
@@ -375,7 +567,7 @@ BigInt CalcLargestPrimeFactor(BigInt num) {
 		}
 
 		for (;;) {
-			lldiv_t divRem = lldiv(currNum, possiblePrime);
+			const lldiv_t divRem = lldiv(currNum, possiblePrime);
 			if (divRem.quot == 0) {
 				break;
 			}
@@ -827,7 +1019,7 @@ void RunHighlyDivisibleTriangleNumber(BigInt moreThanNumDivisors, bool verbose) 
 ////////////////////////////
 // Problem 13 - Large sum
 
-static std::string s_largeSumTable[] = {
+static HugeInt s_largeSumTable[] = {
 	"37107287533902102798797998220837590246510135740250",
 	"46376937677490009712648124896970078050417018260538",
 	"74324986199524741059474233309513058123726617309629",
@@ -960,6 +1152,10 @@ int main(int argc, char** argv) {
 	}
 	else if (strcmp(problemArg, "primeFinder") == 0) {
 		TestPrimeFinder(10);
+		return 0;
+	}
+	else if (strcmp(problemArg, "HugeInt") == 0) {
+		TestHugeInt();
 		return 0;
 	}
 
