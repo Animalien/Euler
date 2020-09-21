@@ -1337,6 +1337,138 @@ void RunPowerDigitSum(BigInt power) {
 
 
 ////////////////////////////
+// Problem 17 - Number letter counts
+
+static BigInt s_numLettersTable_Under20[] = {
+	4,		// zero
+	3,		// one
+	3,		// two
+	5,		// three
+	4,		// four
+	4,		// five
+	3,		// six
+	5,		// seven
+	5,		// eight
+	4,		// nine
+	3,		// ten
+	6,		// eleven
+	6,		// twelve
+	8,		// thirteen
+	8,		// fourteen
+	7,		// fifteen
+	7,		// sixteen
+	9,		// seventeen
+	8,		// eighteen
+	8,		// nineteen
+};
+
+static BigInt s_numLettersTable_Tens[] = {
+	0,		// N/A
+	1,		// N/A
+	6,		// twenty
+	6,		// thirty
+	5,		// forty
+	5,		// fifty
+	5,		// sixty
+	7,		// seventy
+	6,		// eighty
+	6,		// ninety
+};
+
+BigInt CalcNumberLetters(BigInt num, bool verbose) {
+	assert(num <= 1000);
+
+	const BigInt origNum = num;
+	BigInt numLetters = 0;
+
+	bool hadThousandsOrHundreds = false;
+
+	if (num >= 1000) {
+		numLetters += 3 + 8;  // one thousand
+
+		num = num - 1000;
+		hadThousandsOrHundreds = true;
+
+		if (verbose) {
+			printf("  one thousand (11)");
+		}
+	}
+
+	lldiv_t divRem = lldiv(num, 100);
+	const BigInt numHundreds = divRem.quot;
+	if (numHundreds > 0) {
+		assert(numHundreds < 10);
+
+		numLetters += s_numLettersTable_Under20[numHundreds];
+		numLetters += 7;	// hundred
+
+		num = divRem.rem;
+		hadThousandsOrHundreds = true;
+
+		if (verbose) {
+			printf("  %lld hundred (%lld)", numHundreds, s_numLettersTable_Under20[numHundreds] + 7);
+		}
+	}
+
+	if (num > 0) {
+		if (hadThousandsOrHundreds) {
+			numLetters += 3;	// and
+
+			if (verbose) {
+				printf("  and (3)");
+			}
+		}
+
+		if (num >= 20) {
+			divRem = lldiv(num, 10);
+
+			const BigInt tensPlace = divRem.quot;
+			assert(tensPlace < 10);
+			numLetters += s_numLettersTable_Tens[tensPlace];
+
+			const BigInt under10 = divRem.rem;
+			assert(under10 < 10);
+			if (under10 > 0) {
+				numLetters += s_numLettersTable_Under20[under10];
+			}
+
+			if (verbose) {
+				printf("  %lldx10 + %lld (%lld)", tensPlace, under10, s_numLettersTable_Tens[tensPlace] + ((under10 > 0)? s_numLettersTable_Under20[under10] : 0));
+			}
+		}
+		else {
+			numLetters += s_numLettersTable_Under20[num];
+
+			if (verbose) {
+				printf("  %lld (%lld)", num, s_numLettersTable_Under20[num]);
+			}
+		}
+	}
+
+	if (verbose) {
+		printf("\n");
+	}
+
+	printf("Number of letters in %lld = %lld\n", origNum, numLetters);
+
+	return numLetters;
+}
+
+BigInt CalcNumberLetterCount(BigInt max) {
+	BigInt count = 0;
+	for (BigInt i = 1; i <= max; ++i) {
+		count += CalcNumberLetters(i, true);
+	}
+	return count;
+}
+
+void RunNumberLetterCounts(BigInt max) {
+	printf("The total number of letters in all numbers from 1 to %lld = %lld\n", max, CalcNumberLetterCount(max));
+}
+
+
+////////////////////////////
+////////////////////////////
 // Main
 
 int main(int argc, char** argv) {
@@ -1452,6 +1584,13 @@ int main(int argc, char** argv) {
 		RunPowerDigitSum(15);
 		RunPowerDigitSum(100);
 		RunPowerDigitSum(1000);
+		break;
+	case 17:
+		//RunNumberLetterCounts(5);
+		//RunNumberLetterCounts(10);
+		//RunNumberLetterCounts(20);
+		//RunNumberLetterCounts(100);
+		RunNumberLetterCounts(1000);
 		break;
 	default:
 		printf("'%s' is not a valid problem number!\n\n", problemArg);
