@@ -1468,6 +1468,102 @@ void RunNumberLetterCounts(BigInt max) {
 
 
 ////////////////////////////
+// Problem 18 - Maximum path sum 1
+
+static BigInt s_maxPathSum1SmallTri[] = {
+	      3,
+	    7,  4,
+ 	  2,  4,  6,
+	8,  5,  9,  3, 
+};
+
+static BigInt s_maxPathSum1BigTri[] = {
+	                            75,
+	                          95, 64,
+	                        17, 47, 82,
+	                      18, 35, 87, 10,
+	                    20,  4, 82, 47, 65,
+	                  19,  1, 23, 75,  3, 34,
+	                88,  2, 77, 73,  7, 63, 67,
+	              99, 65,  4, 28,  6, 16, 70, 92,
+	            41, 41, 26, 56, 83, 40, 80, 70, 33,
+	          41, 48, 72, 33, 47, 32, 37, 16, 94, 29,
+	        53, 71, 44, 65, 25, 43, 91, 52, 97, 51, 14,
+	      70, 11, 33, 28, 77, 73, 17, 78, 39, 68, 17, 57,
+	    91, 71, 52, 38, 17, 14, 91, 43, 58, 50, 27, 29, 48,
+	  63, 66,  4, 68, 89, 53, 67, 30, 73, 16, 69, 87, 40, 31,
+	04, 62, 98, 27, 23,  9, 70, 98, 73, 93, 38, 53, 60,  4, 23, 
+};
+
+struct MaxTriPathNode {
+	BigInt total;
+	std::vector<BigInt> path;
+};
+
+void IterateMaxPath(BigInt nextRowSize, const std::vector<MaxTriPathNode>& prevRow, std::vector<MaxTriPathNode>& nextRow, const BigInt* nextRowSource) {
+	nextRow.resize(nextRowSize);
+
+	for (BigInt i = 0; i < nextRowSize; ++i) {
+		const MaxTriPathNode* chosenPrevNode = nullptr;
+		if (!prevRow.empty()) {
+			chosenPrevNode = &prevRow[i];
+
+			const MaxTriPathNode& rightNode = prevRow[i+1];
+			if (rightNode.total > chosenPrevNode->total) {
+				chosenPrevNode = &rightNode;
+			}
+		}
+
+		const BigInt nextRowSourceValue = nextRowSource[i];
+		MaxTriPathNode& nextNode = nextRow[i];
+		if (chosenPrevNode) {
+			nextNode.total = chosenPrevNode->total + nextRowSourceValue;
+			nextNode.path = chosenPrevNode->path;
+		}
+		else {
+			nextNode.total = nextRowSourceValue;
+			nextNode.path.resize(0);
+		}
+		nextNode.path.push_back(nextRowSourceValue);
+	}
+}
+
+BigInt CalcMaxPathFromTri(const BigInt* valueList, BigInt triHeight) {
+	std::vector<MaxTriPathNode> prevRow;
+	prevRow.reserve(triHeight);
+	std::vector<MaxTriPathNode> nextRow;
+	nextRow.reserve(triHeight);
+
+	// start from the bottom row and move upwards in the triangle
+	valueList += (triHeight * (triHeight + 1)) / 2;
+
+	for (BigInt rowSize = triHeight; rowSize >= 1; --rowSize) {
+		prevRow.swap(nextRow);
+		valueList -= rowSize;
+
+		IterateMaxPath(rowSize, prevRow, nextRow, valueList);
+	}
+
+	assert(nextRow.size() == 1);
+
+	const MaxTriPathNode& theWinner = nextRow[0];
+
+	printf("Winning path:  ");
+	for (auto iter = theWinner.path.rbegin(); iter != theWinner.path.rend(); ++iter) {
+		printf("%lld ", *iter);
+	}
+	printf("\n");
+
+	return theWinner.total;
+}
+
+void RunMaxPathSum1() {
+	printf("Max path from small tri = %lld\n", CalcMaxPathFromTri(s_maxPathSum1SmallTri, 4));
+	printf("Max path from big tri = %lld\n", CalcMaxPathFromTri(s_maxPathSum1BigTri, 15));
+}
+
+
+////////////////////////////
 ////////////////////////////
 // Main
 
@@ -1591,6 +1687,9 @@ int main(int argc, char** argv) {
 		//RunNumberLetterCounts(20);
 		//RunNumberLetterCounts(100);
 		RunNumberLetterCounts(1000);
+		break;
+	case 18:
+		RunMaxPathSum1();
 		break;
 	default:
 		printf("'%s' is not a valid problem number!\n\n", problemArg);
