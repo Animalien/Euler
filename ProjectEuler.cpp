@@ -1564,6 +1564,97 @@ void RunMaxPathSum1() {
 
 
 ////////////////////////////
+// Problem 19 - Counting Sundays
+
+bool IsLeapYear(BigInt year) {
+	const bool divisibleBy4 = (year & ~3) == 0;
+	const bool divisibleBy100 = (year % 100) == 0;
+	const bool divisibleBy400 = (year % 400) == 0;
+
+	return (divisibleBy4 && (!divisibleBy100 || divisibleBy400));
+}
+
+static const BigInt NUM_DAYS_IN_WEEK = 7;
+enum DaysOfTheWeek {
+	SUNDAY = 0,
+	MONDAY,
+	TUESDAY,
+	WEDNESDAY,
+	THURSDAY,
+	FRIDAY,
+	SATURDAY,
+};
+
+static const BigInt NUM_DAYS_IN_YEAR = 365;
+static const BigInt NUM_DAYS_IN_LEAP_YEAR = 366;
+static const BigInt NUM_FEBRUARY_DAYS = 28;
+static const BigInt NUM_FEBRUARY_DAYS_IN_LEAP_YEAR = 29;
+static const BigInt NUM_DAYS_IN_SHORT_MONTH = 30;
+static const BigInt NUM_DAYS_IN_LONG_MONTH = 31;
+
+enum Months {
+	JANUARY,
+	FEBRUARY,
+	MARCH,
+	APRIL,
+	MAY,
+	JUNE,
+	JULY,
+	AUGUST,
+	SEPTEMBER,
+	OCTOBER,
+	NOVEMBER,
+	DECEMBER,
+};
+
+BigInt CountSundays() {
+	BigInt numSundays = 0;
+
+	// start with Jan 1, 1900, which was a Monday
+	BigInt day = MONDAY;
+	
+	// skip the year 1900 because it is not included in our specified range
+	const BigInt numDaysIn1900 = IsLeapYear(1900) ? NUM_DAYS_IN_LEAP_YEAR : NUM_DAYS_IN_YEAR;
+	day = (day + numDaysIn1900) % NUM_DAYS_IN_WEEK;
+
+	// now loop through all the months of all the years, tallying up Sundays
+	for (BigInt year = 1901; year <= 2000; ++year) {
+		const bool isLeapYear = IsLeapYear(year);
+		for (BigInt month = JANUARY; month <= DECEMBER; ++month) {
+			// tally another sunday if the first of the month is one
+			if (day == SUNDAY) {
+				++numSundays;
+			}
+
+			// step past this month
+			switch (month) {
+			case FEBRUARY:
+				day += isLeapYear ? NUM_FEBRUARY_DAYS_IN_LEAP_YEAR : NUM_FEBRUARY_DAYS;
+				break;
+			case SEPTEMBER:
+			case APRIL:
+			case JUNE:
+			case NOVEMBER:
+				day += NUM_DAYS_IN_SHORT_MONTH;
+				break;
+			default:
+				day += NUM_DAYS_IN_LONG_MONTH;
+				break;
+			}
+
+			day %= NUM_DAYS_IN_WEEK;
+		}
+	}
+
+	return numSundays;
+}
+
+void RunCountingSundays() {
+	printf("There were %lld first-of-the-month Sundays in the 20th Century.\n", CountSundays());
+}
+
+
+////////////////////////////
 ////////////////////////////
 // Main
 
@@ -1690,6 +1781,9 @@ int main(int argc, char** argv) {
 		break;
 	case 18:
 		RunMaxPathSum1();
+		break;
+	case 19:
+		RunCountingSundays();
 		break;
 	default:
 		printf("'%s' is not a valid problem number!\n\n", problemArg);
