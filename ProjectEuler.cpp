@@ -353,7 +353,7 @@ public:
 	}
 
 	void SetToProduct(const HugeInt& leftSide, BigInt rightSide) {
-		assert((rightSide > 0) && (rightSide < 10));		// only single digit multiplication implemented yet (and zero is pointless)
+		assert(rightSide > 0);		// zero is pointless
 
 		Reset();
 
@@ -1655,6 +1655,26 @@ void RunCountingSundays() {
 
 
 ////////////////////////////
+// Problem 20 - Factorial digit sum
+
+BigInt CalcFactorialDigitSum(BigInt num) {
+	HugeInt f = 1;
+	HugeInt other;
+	while (num > 1) {
+		other.Swap(f);
+		f.SetToProduct(other, num);
+		--num;
+	}
+
+	return f.CalcSumDigits();
+}
+
+void RunFactorialDigitSum(BigInt num) {
+	printf("The sum of the digits of %lld! = %lld\n", num, CalcFactorialDigitSum(num));
+}
+
+
+////////////////////////////
 ////////////////////////////
 // Main
 
@@ -1784,6 +1804,10 @@ int main(int argc, char** argv) {
 		break;
 	case 19:
 		RunCountingSundays();
+		break;
+	case 20:
+		RunFactorialDigitSum(10);
+		RunFactorialDigitSum(100);
 		break;
 	default:
 		printf("'%s' is not a valid problem number!\n\n", problemArg);
