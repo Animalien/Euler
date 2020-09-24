@@ -1752,6 +1752,97 @@ void RunAmicableNumbers() {
 }
 
 
+////////////////////////////
+// Problem 22 - Names scores
+
+void LoadNames(std::vector<std::string>& list) {
+	list.clear();
+
+	FILE* file = fopen("p022_names.txt", "rt");
+	assert(file);
+
+	std::string currString;
+	int c = 0;
+	while ((c = fgetc(file)) != EOF) {
+		if (c == (int)',') {
+			assert(currString.empty());
+		}
+		else if (c == (int)'\"') {
+			if (!currString.empty()) {
+				//printf("%s\n", currString.c_str());
+				list.push_back(std::string());
+				currString.swap(list.back());
+				assert(currString.empty());
+			}
+		}
+		else {
+			currString += (char)c;
+		}
+	}
+}
+
+void SortNames(std::vector<std::string>& list) {
+	std::sort(list.begin(), list.end());
+	/*
+	for (BigInt i = 0; i < (BigInt)list.size(); ++i) {
+		printf("%s\n", list[i].c_str());
+	}
+	*/
+}
+
+BigInt CalcNameValue(const std::string& name) {
+	BigInt value = 0;
+	for (BigInt i = 0; i < (BigInt)name.length(); ++i) {
+		value += ((BigInt)name[i] - (BigInt)'A' + 1);
+	}
+	return value;
+}
+
+void CalcNameValues(const std::vector<std::string>& nameList, std::vector<BigInt>& valueList) {
+	const BigInt nameListSize = (int)nameList.size();
+	valueList.clear();
+	for (BigInt i = 0; i < nameListSize; ++i) {
+		const BigInt nameValue = CalcNameValue(nameList[i]);
+		valueList.push_back(nameValue);
+		//printf("Value of %s = %lld\n", nameList[i].c_str(), nameValue);
+	}
+}
+
+void TestSingleNameScore(const std::vector<std::string>& nameList, const std::vector<BigInt>& valueList, const char* name) {
+	auto iter = std::find(nameList.begin(), nameList.end(), name);
+	assert(iter != nameList.end());
+
+	const BigInt nameIndex = (BigInt)(iter - nameList.begin());
+	const BigInt nameNumber = nameIndex + 1;
+	printf("Score of %s = %lld x %lld = %lld\n", iter->c_str(), nameNumber, valueList[nameIndex], nameNumber * valueList[nameIndex]);
+}
+
+BigInt CalcSumNameScores(const std::vector<std::string>& nameList, const std::vector<BigInt>& valueList) {
+	BigInt sum = 0;
+
+	for (BigInt i = 0; i < (BigInt)valueList.size(); ++i) {
+		const BigInt score = (i + 1) * valueList[i];
+		sum += score;
+		//printf("Name score of %s = %lld\n", nameList[i].c_str(), score);
+	}
+
+	return sum;
+}
+
+void RunNamesScores() {
+	std::vector<std::string> nameList;
+	LoadNames(nameList);
+	SortNames(nameList);
+
+	std::vector<BigInt> valueList;
+	CalcNameValues(nameList, valueList);
+
+	TestSingleNameScore(nameList, valueList, "COLIN");
+
+	printf("The sum of all name scores = %lld\n", CalcSumNameScores(nameList, valueList));
+}
+
+
 
 ////////////////////////////
 ////////////////////////////
@@ -1890,6 +1981,9 @@ int main(int argc, char** argv) {
 		break;
 	case 21:
 		RunAmicableNumbers();
+		break;
+	case 22:
+		RunNamesScores();
 		break;
 	default:
 		printf("'%s' is not a valid problem number!\n\n", problemArg);
