@@ -1675,6 +1675,85 @@ void RunFactorialDigitSum(BigInt num) {
 
 
 ////////////////////////////
+// Problem 21 - Amicable numbers
+
+BigInt CalcSumProperDivisors(BigInt num, bool verbose = false) {
+	if (verbose) {
+		printf("Proper divisors of %lld:  1 ", num);
+	}
+
+	BigInt sum = 1;
+
+	const BigInt maxDiv = num / 2;
+	for (BigInt i = 2; i <= maxDiv; ++i) {
+		if (num % i == 0) {
+			if (verbose) {
+				printf("%lld ", i);
+			}
+			sum += i;
+		}
+	}
+	if (verbose) {
+		printf("\n");
+	}
+
+	return sum;
+}
+
+BigInt CalcSumAmicableNumbers(BigInt max) {
+	std::vector<bool> amicableFlags;
+	amicableFlags.resize(max, false);
+
+	BigInt sum = 0;
+	for (BigInt i = 1; i < max; ++i) {
+		if (amicableFlags[i]) {
+			continue;
+		}
+
+		const BigInt other = CalcSumProperDivisors(i);
+		if (other == i) {
+			continue;
+		}
+
+		const BigInt sumProperDivOther = CalcSumProperDivisors(other);
+		if (sumProperDivOther == i) {
+			assert(other > i);	// otherwise we should have already dealt with the smaller one and its partner, and already done an early out on its true amicable flag
+
+			// add both this and the other to the sum
+			sum += i;
+			sum += other;
+
+			// no need to flag this one since we are already moving past it
+
+			// flag the other one
+			amicableFlags[other] = true;
+		}
+	}
+
+	return sum;
+}
+
+void TestCalcSumProperDivisors(BigInt num) {
+	printf("The sum of the proper divisors of %lld = %lld\n", num, CalcSumProperDivisors(num, true));
+}
+
+void TestSumAllAmicableNumbers(BigInt max) {
+	printf("The sum of all amicable numbers under %lld = %lld\n", max, CalcSumAmicableNumbers(max));
+}
+
+void RunAmicableNumbers() {
+	TestCalcSumProperDivisors(220);
+	TestCalcSumProperDivisors(284);
+
+	TestSumAllAmicableNumbers(10);
+	TestSumAllAmicableNumbers(100);
+	TestSumAllAmicableNumbers(1000);
+	TestSumAllAmicableNumbers(10000);
+}
+
+
+
+////////////////////////////
 ////////////////////////////
 // Main
 
@@ -1808,6 +1887,9 @@ int main(int argc, char** argv) {
 	case 20:
 		RunFactorialDigitSum(10);
 		RunFactorialDigitSum(100);
+		break;
+	case 21:
+		RunAmicableNumbers();
 		break;
 	default:
 		printf("'%s' is not a valid problem number!\n\n", problemArg);
