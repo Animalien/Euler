@@ -1845,6 +1845,89 @@ void RunNamesScores() {
 
 
 ////////////////////////////
+// Problem 23 - Non-abundant sums
+
+bool IsAbundant(BigInt num) {
+	if (num <= 0) {
+		return false;
+	}
+
+	const BigInt sumProperDivisors = CalcSumProperDivisors(num, false);
+	const bool isAbundant = (sumProperDivisors > num);
+
+	/*
+	printf("%lld sum of proper divisors = %lld, ", num, sumProperDivisors);
+	if (isAbundant) {
+		printf(" abundant\n");
+	}
+	else if (sumProperDivisors == num) {
+		printf(" perfect\n");
+	}
+	else {
+		printf(" deficient\n");
+	}
+	*/
+
+	return isAbundant;
+}
+
+void DetermineAbundantness(std::vector<bool>& flagList, BigInt numNums) {
+	flagList.resize(0);
+	flagList.reserve(numNums);
+
+	for (BigInt num = 0; num < numNums; ++num) {
+		flagList.push_back(IsAbundant(num));
+	}
+}
+
+bool CanBeWrittenAsSumOfAbundantNumbers(BigInt num, const std::vector<bool>& abundantFlagList) {
+	assert((BigInt)abundantFlagList.size() > num);
+
+	bool canBe = false;
+
+	const BigInt halfNum = num / 2;
+	for (BigInt i = 1; i <= halfNum; ++i) {
+		const BigInt other = num - i;
+		if (abundantFlagList[i] && abundantFlagList[other]) {
+			canBe = true;
+			//printf("%lld can be written as the sum of abundant numbers %lld and %lld\n", num, i, other);
+			break;
+		}
+	}
+
+	/*
+	if (!canBe) {
+		printf("%lld CANNOT be written as the sum of two abundant numbers\n", num);
+	}
+	*/
+
+	return canBe;
+}
+
+BigInt CalcSumCannotBeWrittenAsSumOfTwoAbundantNumbers(BigInt max) {
+	BigInt sum = 0;
+
+	std::vector<bool> abundantFlagList;
+	DetermineAbundantness(abundantFlagList, max + 1);
+
+	for (BigInt i = 1; i <= max; ++i) {
+		const bool canBeWritten = CanBeWrittenAsSumOfAbundantNumbers(i, abundantFlagList);
+		if (!canBeWritten) {
+			sum += i;
+			//printf("Sum %lld + %lld = %lld\n", sum - i, i, sum);
+		}
+	}
+
+	return sum;
+}
+
+void RunNonAbundantSums(BigInt max) {
+	printf("The sum of all the positive integers from 1 to %lld inclusive which cannot be written as the sum of two abundant numbers = %lld\n", 
+		max, CalcSumCannotBeWrittenAsSumOfTwoAbundantNumbers(max));
+}
+
+
+////////////////////////////
 ////////////////////////////
 // Main
 
@@ -1984,6 +2067,12 @@ int main(int argc, char** argv) {
 		break;
 	case 22:
 		RunNamesScores();
+		break;
+	case 23:
+		//RunNonAbundantSums(20);
+		//RunNonAbundantSums(100);
+		//RunNonAbundantSums(1000);
+		RunNonAbundantSums(28123);
 		break;
 	default:
 		printf("'%s' is not a valid problem number!\n\n", problemArg);
