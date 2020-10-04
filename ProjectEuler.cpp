@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <assert.h>
 #include <deque>
+#include <functional>
 #include <map>
 #include <math.h>
 #include <numeric>
@@ -1927,6 +1928,53 @@ void RunNonAbundantSums(BigInt max) {
 }
 
 
+
+////////////////////////////
+// Problem 24 - Lexicographic permutations
+
+bool RecurseLexicoPermut(char* begin, char* middle, char* end, std::function<bool(const char*)> func) {
+	const BigInt numChars = (BigInt)(end - middle);
+	if (numChars <= 1) {
+		return func(begin);
+	}
+
+	for (BigInt i = 0; i < numChars; ++i) {
+		std::swap(middle[0], middle[i]);
+		if (!RecurseLexicoPermut(begin, middle + 1, end, func)) {
+			return false;
+		}
+	}
+
+	std::rotate(middle, middle + 1, end);
+
+	return true;
+}
+
+void RunLexicographicPermutations(const std::string& origSt, BigInt desiredPermut) {
+	std::string st = origSt;
+
+	char* begin = &st[0];
+	char* end = begin + st.length();
+	BigInt index = 0;
+	const BigInt desiredPermutIndex = desiredPermut - 1;
+	RecurseLexicoPermut(
+		begin, begin, end,
+		[&](const char* st) {
+			//printf("permut[%lld] = %s\n", index, st);
+			if (index >= desiredPermutIndex - 1 && index <= desiredPermutIndex + 1) {
+				printf("Permutation # %lld = %s\n", index + 1, st);
+				if (index >= desiredPermutIndex + 1) {
+					return false;
+				}
+			}
+			++index;
+			return true;
+		});
+
+	printf("Back to %s\n", st.c_str());
+}
+
+
 ////////////////////////////
 ////////////////////////////
 // Main
@@ -2073,6 +2121,11 @@ int main(int argc, char** argv) {
 		//RunNonAbundantSums(100);
 		//RunNonAbundantSums(1000);
 		RunNonAbundantSums(28123);
+		break;
+	case 24:
+		//RunLexicographicPermutations("0123", 3);
+		//RunLexicographicPermutations("012345", 500);
+		RunLexicographicPermutations("0123456789", 1000000);
 		break;
 	default:
 		printf("'%s' is not a valid problem number!\n\n", problemArg);
