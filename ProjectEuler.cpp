@@ -338,14 +338,25 @@ public:
 
 	HugeInt operator+ (const HugeInt& other) const {
 		const HugeInt* list[2] = { this, &other };
-		return CalcSum(list, 2);
+		return GetCalcedSum(list, 2);
 	}
 
-	static HugeInt CalcSum(const HugeInt* list, BigInt numItems) {
-		return CalcSum(ListIterator(list, numItems));
+	void SetToSum(const HugeInt& left, const HugeInt& right) {
+		const HugeInt* list[2] = { &left, &right };
+		CalcSum(list, 2);
 	}
-	static HugeInt CalcSum(const HugeInt*const* list, BigInt numItems) {
-		return CalcSum(ListIterator(list, numItems));
+
+	static HugeInt GetCalcedSum(const HugeInt* list, BigInt numItems) {
+		return GetCalcedSum(ListIterator(list, numItems));
+	}
+	static HugeInt GetCalcedSum(const HugeInt* const* list, BigInt numItems) {
+		return GetCalcedSum(ListIterator(list, numItems));
+	}
+	void CalcSum(const HugeInt* list, BigInt numItems) {
+		CalcSum(ListIterator(list, numItems));
+	}
+	void CalcSum(const HugeInt* const* list, BigInt numItems) {
+		CalcSum(ListIterator(list, numItems));
 	}
 
 	void Swap(HugeInt& other) {
@@ -484,7 +495,15 @@ private:
 		BigInt					m_num;
 	};
 
-	static HugeInt CalcSum(ListIterator& listIter) {
+	static HugeInt GetCalcedSum(ListIterator& listIter) {
+		HugeInt sum;
+		sum.CalcSum(listIter);
+		return sum;
+	}
+
+	void CalcSum(ListIterator & listIter) {
+		Reset();
+
 		std::vector<ConstIterator> iterList;
 		iterList.reserve(listIter.GetNum());
 
@@ -493,7 +512,6 @@ private:
 			iterList.push_back(ConstIterator(*listIter));
 		}
 
-		HugeInt sum;
 		BigInt carryOver = 0;
 
 		// now iterate through the digits, starting from ones' place,
@@ -520,12 +538,10 @@ private:
 
 			const lldiv_t divRem = lldiv(digitSum, 10);
 			const char newDigit = (char)(divRem.rem + '0');
-			sum.m_string += newDigit;
+			m_string += newDigit;
 
 			carryOver = divRem.quot;
 		}
-
-		return sum;
 	}
 
 	mutable std::string		m_string;
@@ -1194,7 +1210,7 @@ static const HugeInt s_largeSumTable[] = {
 };
 
 void RunFirstDigitsOfLargeSum(BigInt numDigits) {
-	const HugeInt sum = HugeInt::CalcSum(s_largeSumTable, sizeof(s_largeSumTable) / sizeof(s_largeSumTable[0]));
+	const HugeInt sum = HugeInt::GetCalcedSum(s_largeSumTable, sizeof(s_largeSumTable) / sizeof(s_largeSumTable[0]));
 	printf("Sum of huge numbers in table = %s (total num digits = %lld)\n", sum.GetString(), sum.GetNumDigits());
 	printf("First %lld digits = ", numDigits);
 	sum.PrintDigits(numDigits);
@@ -1976,6 +1992,41 @@ void RunLexicographicPermutations(const std::string& origSt, BigInt desiredPermu
 
 
 ////////////////////////////
+// Problem 25 - 1000 digit Fibonacci
+
+void RunNDigitFibonacci(BigInt numDigits) {
+	assert(numDigits > 0);
+	if (numDigits == 1) {
+		printf("The first Fibonacci number to have 1 digit is:  Fib(1) = 1\n");
+		return;
+	}
+
+	printf("Fib(1) = 1\nFib(2) = 1\n");
+
+	HugeInt num;
+	HugeInt prev = 1;
+	HugeInt prevPrev = 1;
+	BigInt fibNum = 3;
+
+	for (;;) {
+		num = prev + prevPrev;
+		printf("Fib(%lld) = %s\n", fibNum, num.GetString());
+
+		if (num.GetNumDigits() >= numDigits) {
+			break;
+		}
+
+		prevPrev.Swap(prev);
+		prev.Swap(num);
+		++fibNum;
+	};
+
+	printf("The first Fibonacci number to have %lld digits is:  Fib(%lld) = %s\n", numDigits, fibNum, num.GetString());
+}
+
+
+
+////////////////////////////
 ////////////////////////////
 // Main
 
@@ -2126,6 +2177,12 @@ int main(int argc, char** argv) {
 		//RunLexicographicPermutations("0123", 3);
 		//RunLexicographicPermutations("012345", 500);
 		RunLexicographicPermutations("0123456789", 1000000);
+		break;
+	case 25:
+		//RunNDigitFibonacci(3);
+		//RunNDigitFibonacci(10);
+		//RunNDigitFibonacci(100);
+		RunNDigitFibonacci(1000);
 		break;
 	default:
 		printf("'%s' is not a valid problem number!\n\n", problemArg);
