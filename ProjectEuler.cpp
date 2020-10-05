@@ -142,7 +142,7 @@ private:
 
 static FactorizationCache s_factorizationCache;
 
-void TestFactorization(BigInt num) {
+void PrintFactorization(BigInt num) {
 	printf("%lld:  ", num);
 
 	const Factorization& f = s_factorizationCache.Factorize(num);
@@ -159,7 +159,7 @@ void TestFactorizationRange(BigInt max) {
 	s_factorizationCache.PopulateCache(max);
 
 	for (BigInt i = 2; i <= max; ++i) {
-		TestFactorization(i);
+		PrintFactorization(i);
 	}
 }
 
@@ -296,9 +296,19 @@ public:
 	HugeInt(const char* st) : m_string(st), m_backwards(false) { }
 	HugeInt(std::string st) : m_string(st), m_backwards(false) { }
 
-	void Reset() {
+	void Reset(bool backwards = true) {
 		m_string.clear();
-		m_backwards = true;
+		m_backwards = backwards;
+	}
+	
+	void SetTo(BigInt num) {
+		m_string = std::to_string(num);
+		m_backwards = false;
+	}
+	void AppendDigit(BigInt digit) {
+		assert(digit >= 0);
+		assert(digit < 10);
+		m_string.push_back((char)(digit + '0'));
 	}
 
 	void Print() const {
@@ -390,6 +400,51 @@ public:
 		}
 	}
 
+	void SetToDivision(const HugeInt& numer, BigInt denom, BigInt* remainder = nullptr) {
+		assert(denom > 0);		// zero is pointless
+
+		//printf("%s / %lld:\n", numer.GetString(), denom);
+
+		Reset(false);
+
+		ConstIterator iter(numer, false);
+
+		BigInt numerTemp = 0;
+		while ((numerTemp < denom) && !iter.IsAtEnd()) {
+			numerTemp *= 10;
+			numerTemp += iter.GetDigit();
+			iter.Increment();
+		}
+
+		//printf("  numerTemp = %lld\n", numerTemp);
+
+		if ((numerTemp < denom) && iter.IsAtEnd()) {
+			SetTo(0);
+			if (remainder != nullptr) {
+				*remainder = numerTemp;
+			}
+			return;
+		}
+
+		for (;;) {
+			const lldiv_t div = lldiv(numerTemp, denom);
+			assert(div.quot >= 0);
+			assert(div.quot < 10);
+
+			m_string.push_back('0' + div.quot);
+
+			if (iter.IsAtEnd()) {
+				if (remainder != nullptr) {
+					*remainder = div.rem;
+				}
+				return;
+			}
+
+			numerTemp = div.rem * 10 + iter.GetDigit();
+			iter.Increment();
+		}
+	}
+
 
 private:
 	void SetForwards() const {
@@ -410,18 +465,15 @@ private:
 
 	class ConstIterator {
 	public:
-		// Note: This iterator iterates from ones place on up to increasing digit place values.
-		//			For example, with the int "451", we will iterate thusly:  "1", then "5", then "4"
-
-		ConstIterator(const HugeInt& parent) : m_string(parent.m_string) {
-			if (parent.m_backwards) {
-				// the int is already backwards, so just interate from start to finish
+		ConstIterator(const HugeInt& parent, bool lowToHigh = true) : m_string(parent.m_string) {
+			if (parent.m_backwards == lowToHigh) {
+				// the digits are already in the direction we want them, so just interate from start to finish
 				m_index = 0;
 				m_endIndex = m_string.length();
 				m_increment = +1;
 			}
 			else {
-				// the int is not backwards, i.e. it is in readable form, so we must iterate backwards from the end
+				// the digits are in the opposite direction we want to iterate them in, so we must iterate backwards from the end
 				m_index = m_string.length() - 1;
 				m_endIndex = -1;
 				m_increment = -1;
@@ -561,6 +613,24 @@ void TestHugeInt() {
 	product2.SetToProduct(n2, 2);
 	product3.SetToProduct(n3, 2);
 	printf("TestHugeInt product:  n1 * 2 = %s, n2 * 2 = %s, n3 * 2 = %s\n", product1.GetString(), product2.GetString(), product3.GetString());
+
+	HugeInt numer1 = 1000;
+	BigInt denom1 = 200;
+	HugeInt numer2 = 3;
+	BigInt denom2 = 5;
+	HugeInt numer3 = 146;
+	BigInt denom3 = 12;
+	BigInt remainder1, remainder2, remainder3;
+	HugeInt quot1, quot2, quot3;
+
+	quot1.SetToDivision(numer1, denom1, &remainder1);
+	quot2.SetToDivision(numer2, denom2, &remainder2);
+	quot3.SetToDivision(numer3, denom3, &remainder3);
+
+	printf("TestHugeInt divison:  %s / %lld = (%s, %lld), %s / %lld = (%s, %lld), %s / %lld (%s, %lld)\n",
+		numer1.GetString(), denom1, quot1.GetString(), remainder1,
+		numer2.GetString(), denom2, quot2.GetString(), remainder2,
+		numer3.GetString(), denom3, quot3.GetString(), remainder3);
 }
 
 
@@ -2025,6 +2095,76 @@ void RunNDigitFibonacci(BigInt numDigits) {
 }
 
 
+////////////////////////////
+// Problem 26 - Reciprocal Cycles
+
+BigInt CalcNumFactors(BigInt numer, BigInt denom, BigInt* remainder = nullptr) {
+	BigInt numFactors = 0;
+	for (;;) {
+		const lldiv_t div = lldiv(numer, denom);
+		if (div.rem != 0) {
+			break;
+		}
+
+		++numFactors;
+		numer = div.quot;
+	}
+
+	if (remainder != nullptr) {
+		*remainder = numer;
+	}
+
+	return numFactors;
+}
+
+BigInt CalcReciprocalCycleLength(BigInt denom) {
+	printf("denom = %lld:  ", denom);
+
+	const BigInt numFactors2 = CalcNumFactors(denom, 2, &denom);
+	const BigInt numFactors5 = CalcNumFactors(denom, 5, &denom);
+	printf("nf2(%lld), nf5(%lld), ", numFactors2, numFactors5);
+
+	const BigInt numTens = std::max(numFactors2, numFactors5);
+
+	const BigInt tens = (BigInt)pow(10.0, numTens);
+	printf("tens = %lld (10^%lld)", tens, numTens);
+
+	HugeInt nines;
+	if (denom > 1) {
+		for (;;) {
+			nines.AppendDigit(9);
+
+			HugeInt div;
+			BigInt remainder;
+			div.SetToDivision(nines, denom, &remainder);
+
+			if (remainder == 0) {
+				break;
+			}
+		}
+	}
+
+	printf(", num nines = %lld\n", nines.GetNumDigits());
+
+	return nines.GetNumDigits();
+}
+
+void RunReciprocalCycles(BigInt maxDenom) {
+	BigInt longestCycleLength = 0;
+	BigInt longestCycleDenom = 0;
+
+	for (BigInt denom = 2; denom < maxDenom; ++denom) {
+		const BigInt cycLen = CalcReciprocalCycleLength(denom);
+		if (cycLen > longestCycleLength) {
+			longestCycleLength = cycLen;
+			longestCycleDenom = denom;
+		}
+	}
+
+	printf("The longest decimal cycle for 1 / d where d < %lld is:  d = %lld, cycleLength = %lld\n", maxDenom, longestCycleDenom, longestCycleLength);
+}
+
+
 
 ////////////////////////////
 ////////////////////////////
@@ -2043,7 +2183,7 @@ int main(int argc, char** argv) {
 	const char* problemArg = argv[1];
 	if (strcmp(problemArg, "factorization") == 0) {
 		if (argc >= 3) {
-			TestFactorization(atoi(argv[2]));
+			PrintFactorization(atoi(argv[2]));
 		}
 		else {
 			TestFactorizationRange(20);
@@ -2183,6 +2323,12 @@ int main(int argc, char** argv) {
 		//RunNDigitFibonacci(10);
 		//RunNDigitFibonacci(100);
 		RunNDigitFibonacci(1000);
+		break;
+	case 26:
+		//RunReciprocalCycles(10);
+		//RunReciprocalCycles(20);
+		//RunReciprocalCycles(100);
+		RunReciprocalCycles(1000);
 		break;
 	default:
 		printf("'%s' is not a valid problem number!\n\n", problemArg);
