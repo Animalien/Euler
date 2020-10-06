@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -284,6 +285,39 @@ void TestPrimeFinder(BigInt window) {
 	s_primeFinder.PrintPrimes();
 	printf("\n\n");
 }
+
+
+////////////////////////////
+// PrimeCache
+
+class PrimeCache {
+public:
+	PrimeCache() {
+		for (auto iter = s_primeFinder.begin(); iter != s_primeFinder.end(); ++iter) {
+			m_set.insert(*iter);
+		}
+	}
+
+	bool IsPrime(BigInt num) {
+		while (s_primeFinder.empty() || s_primeFinder.back() < num) {
+			const BigInt origNumPrimes = (BigInt)s_primeFinder.size();
+			s_primeFinder.FindPrimes();
+			const BigInt newNumPrimes = (BigInt)s_primeFinder.size();
+			for (BigInt i = origNumPrimes; i < (BigInt)newNumPrimes; ++i) {
+				m_set.insert(s_primeFinder[i]);
+			}
+		}
+
+		const bool isPrime = (m_set.count(num) > 0);
+		return isPrime;
+	}
+
+
+private:
+	mutable std::unordered_set<BigInt> m_set;
+};
+
+static PrimeCache s_primeCache;
 
 
 ////////////////////////////
@@ -2167,6 +2201,72 @@ void RunReciprocalCycles(BigInt maxDenom) {
 
 
 ////////////////////////////
+// Problem 27 - Quadratic primes
+
+BigInt CalcNumQuadraticPrimes(BigInt coeffA, BigInt coeffB) {
+	BigInt numPrimes = 0;
+
+	//printf("(N * N) + (%lld * N) + (%lld):  ", coeffA, coeffB);
+
+	for (;;) {
+		const BigInt candidatePrime = (numPrimes * numPrimes) + (coeffA * numPrimes) + coeffB;
+		if (!s_primeCache.IsPrime(candidatePrime)) {
+			break;
+		}
+
+		//printf("%lld ", candidatePrime);
+		++numPrimes;
+	}
+
+	//printf(";  numPrimes = %lld\n", numPrimes);
+
+	return numPrimes;
+}
+
+void TestQuadraticPrimes(BigInt coeffA, BigInt coeffB) {
+	printf("Num primes with quadratic coefficients A = %lld and B = %lld:  %lld\n", coeffA, coeffB, CalcNumQuadraticPrimes(coeffA, coeffB));
+}
+
+BigInt CalcCoeffProdQuadraticPrimes(BigInt coefficientRange) {
+	BigInt maxNumPrimes = 0;
+	BigInt maxNumPrimesCoeffA = 0;
+	BigInt maxNumPrimesCoeffB = 0;
+	for (BigInt coeffA = -coefficientRange + 1; coeffA < +coefficientRange; ++coeffA) {
+		printf("Testing coeff A = %lld\n", coeffA);
+		for (BigInt coeffB = -coefficientRange; coeffB <= +coefficientRange; ++coeffB) {
+			const BigInt numPrimes = CalcNumQuadraticPrimes(coeffA, coeffB);
+			//printf("Num primes with quadratic coefficients A = %lld and B = %lld:  %lld\n", coeffA, coeffB, numPrimes);
+
+			if (numPrimes > maxNumPrimes) {
+				maxNumPrimes = numPrimes;
+				maxNumPrimesCoeffA = coeffA;
+				maxNumPrimesCoeffB = coeffB;
+			}
+		}
+	}
+
+	const BigInt maxNumPrimesCoeffProd = maxNumPrimesCoeffA * maxNumPrimesCoeffB;
+	printf("Result:  max num primes %lld come from coefficients A = %lld and B = %lld, and the coefficient product = %lld\n", maxNumPrimes, maxNumPrimesCoeffA, maxNumPrimesCoeffB, maxNumPrimesCoeffProd);
+
+	return maxNumPrimesCoeffProd;
+}
+
+void TestQuadraticPrimesRange(BigInt coefficientRange) {
+	printf("The product of the coefficients that produce the max number of primes = %lld\n", CalcCoeffProdQuadraticPrimes(coefficientRange));
+}
+
+void RunQuadraticPrimes() {
+	TestQuadraticPrimes(1, 41);
+	TestQuadraticPrimes(-79, 1601);
+
+	//TestQuadraticPrimesRange(10);
+	//TestQuadraticPrimesRange(100);
+	TestQuadraticPrimesRange(1000);
+}
+
+
+
+////////////////////////////
 ////////////////////////////
 // Main
 
@@ -2329,6 +2429,9 @@ int main(int argc, char** argv) {
 		//RunReciprocalCycles(20);
 		//RunReciprocalCycles(100);
 		RunReciprocalCycles(1000);
+		break;
+	case 27:
+		RunQuadraticPrimes();
 		break;
 	default:
 		printf("'%s' is not a valid problem number!\n\n", problemArg);
