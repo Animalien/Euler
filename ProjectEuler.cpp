@@ -431,7 +431,7 @@ public:
 			assert(div.quot >= 0);
 			assert(div.quot < 10);
 
-			m_string.push_back('0' + div.quot);
+			m_string.push_back('0' + (char)div.quot);
 
 			if (iter.IsAtEnd()) {
 				if (remainder != nullptr) {
