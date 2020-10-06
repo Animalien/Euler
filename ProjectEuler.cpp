@@ -2267,6 +2267,59 @@ void RunQuadraticPrimes() {
 
 
 ////////////////////////////
+// Problem 28 - Number spiral diagonals
+
+void SumSpiralArmDiagonals(BigInt armSize, BigInt& sum, BigInt& num) {
+	if (num == 1) {
+		++num;
+		sum += 1;
+		printf("armSize = 1\n  num = 1\n");
+		return;
+	}
+
+	assert(armSize & 1);
+	printf("armSize = %lld\n", armSize);
+
+	// down the right hand side
+	num += (armSize - 2);
+	printf("  lower-right num = %lld\n", num);
+	sum += num;
+
+	// left across the bottom side
+	num += (armSize - 1);
+	printf("  lower-left num = %lld\n", num);
+	sum += num;
+
+	// up the left hand side
+	num += (armSize - 1);
+	printf("  upper-left num = %lld\n", num);
+	sum += num;
+
+	// right across the top side
+	num += (armSize - 1);
+	printf("  upper-right num = %lld\n", num);
+	sum += num;
+
+	// step out to the next arm
+	++num;
+	printf("  start of next arm = %lld\n", num);
+}
+
+void RunNumberSpiralDiagonals(BigInt size) {
+	assert(size & 1);
+	BigInt sum = 0;
+	BigInt num = 1;
+	for (BigInt armSize = 1; armSize <= size; armSize += 2) {
+		SumSpiralArmDiagonals(armSize, sum, num);
+	}
+
+	printf("Sum for spiral of size %lld = %lld\n", size, sum);
+}
+
+
+
+
+////////////////////////////
 ////////////////////////////
 // Main
 
@@ -2432,6 +2485,11 @@ int main(int argc, char** argv) {
 		break;
 	case 27:
 		RunQuadraticPrimes();
+		break;
+	case 28:
+		//RunNumberSpiralDiagonals(5);
+		//RunNumberSpiralDiagonals(101);
+		RunNumberSpiralDiagonals(1001);
 		break;
 	default:
 		printf("'%s' is not a valid problem number!\n\n", problemArg);
