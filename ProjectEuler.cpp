@@ -7,6 +7,7 @@
 #include <map>
 #include <math.h>
 #include <numeric>
+#include <set>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
@@ -478,6 +479,36 @@ public:
 			iter.Increment();
 		}
 	}
+
+	void SetToPower(BigInt base, BigInt power) {
+		SetTo(base);
+
+		HugeInt other;
+
+		const BigInt numProd = power - 1;
+		for (BigInt i = 0; i < numProd; ++i) {
+			Swap(other);
+			SetToProduct(other, base);
+		}
+	}
+
+	class Sorter {
+	public:
+		bool operator()(const HugeInt& left, const HugeInt& right) const {
+			left.SetForwards();
+			right.SetForwards();
+
+			if (left.m_string.length() < right.m_string.length()) {
+				return true;
+			}
+
+			if (left.m_string.length() > right.m_string.length()) {
+				return false;
+			}
+
+			return left.m_string < right.m_string;
+		}
+	};
 
 
 private:
@@ -2317,6 +2348,35 @@ void RunNumberSpiralDiagonals(BigInt size) {
 }
 
 
+////////////////////////////
+// Problem 29 - Distinct powers
+
+BigInt CalcNumDistinctPowerTerms(BigInt min, BigInt max) {
+	std::set<HugeInt, HugeInt::Sorter> set;
+
+	HugeInt power;
+
+	for (BigInt a = min; a <= max; ++a) {
+		for (BigInt b = min; b <= max; ++b) {
+			power.SetToPower(a, b);
+			printf("%lld ^ %lld = %s\n", a, b, power.GetString());
+			set.insert(power);
+		}
+	}
+
+	printf("Distinct terms:  ");
+	for (auto iter = set.begin(); iter != set.end(); ++iter) {
+		printf("%s ", iter->GetString());
+	}
+	printf("\n");
+
+	return (BigInt)set.size();
+}
+
+void RunDistinctPowers(BigInt min, BigInt max) {
+	printf("The number of distinct power terms with a and b varying from %lld to %lld = %lld\n", min, max, CalcNumDistinctPowerTerms(min, max));
+}
+
 
 
 ////////////////////////////
@@ -2490,6 +2550,11 @@ int main(int argc, char** argv) {
 		//RunNumberSpiralDiagonals(5);
 		//RunNumberSpiralDiagonals(101);
 		RunNumberSpiralDiagonals(1001);
+		break;
+	case 29:
+		//RunDistinctPowers(2, 5);
+		//RunDistinctPowers(2, 20);
+		RunDistinctPowers(2, 100);
 		break;
 	default:
 		printf("'%s' is not a valid problem number!\n\n", problemArg);
