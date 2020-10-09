@@ -2380,6 +2380,57 @@ void RunDistinctPowers(BigInt min, BigInt max) {
 
 
 ////////////////////////////
+// Problem 30 - Fifth digit powers
+
+BigInt CalcDigitPowersMaxNumDigits(BigInt power) {
+	BigInt numDigits = 0;
+	BigInt nines = 0;
+	BigInt powerSum = 0;
+
+	const BigInt nineToPower = (BigInt)pow(9.0, power);
+	printf("9 ^ %lld = %lld\n", power, nineToPower);
+	for (;;) {
+		++numDigits;
+		nines = nines * 10 + 9;
+		powerSum += nineToPower;
+
+		if (nines >= powerSum) {
+			return numDigits;
+		}
+	}
+}
+
+void IterateDigitPowers(BigInt numSoFar, BigInt powerSumSoFar, BigInt numDigitsLeft, BigInt power, BigInt& sumValidNums) {
+	if (numDigitsLeft <= 0) {
+		if ((numSoFar > 1) && (numSoFar == powerSumSoFar)) {
+			printf("Found valid num %lld\n", numSoFar);
+			sumValidNums += numSoFar;
+		}
+		return;
+	}
+
+	const BigInt numSoFarTimesTen = numSoFar * 10;
+	const BigInt newNumDigitsLeft = numDigitsLeft - 1;
+		for (BigInt digit = 0; digit <= 9; ++digit) {
+		const BigInt newNumSoFar = numSoFarTimesTen + digit;
+		const BigInt newPowerSumSoFar = powerSumSoFar + (BigInt)pow(digit, power);
+		IterateDigitPowers(newNumSoFar, newPowerSumSoFar, newNumDigitsLeft, power, sumValidNums);
+	}
+}
+
+void RunDigitPowers(BigInt power) {
+	const BigInt maxNumDigits = CalcDigitPowersMaxNumDigits(power);
+	printf("Max num digits for power %lld = %lld\n", power, maxNumDigits);
+
+	BigInt sumValidNums = 0;
+	IterateDigitPowers(0, 0, maxNumDigits, power, sumValidNums);
+
+	printf("Sum of all the numbers that can be written as the sum of %lld powers of their digits = %lld\n", power, sumValidNums);
+}
+
+
+
+////////////////////////////
 ////////////////////////////
 // Main
 
@@ -2555,6 +2606,11 @@ int main(int argc, char** argv) {
 		//RunDistinctPowers(2, 5);
 		//RunDistinctPowers(2, 20);
 		RunDistinctPowers(2, 100);
+		break;
+	case 30:
+		RunDigitPowers(3);
+		RunDigitPowers(4);
+		RunDigitPowers(5);
 		break;
 	default:
 		printf("'%s' is not a valid problem number!\n\n", problemArg);
