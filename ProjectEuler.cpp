@@ -2431,6 +2431,71 @@ void RunDigitPowers(BigInt power) {
 
 
 ////////////////////////////
+// Problem 31 - Coin sums
+
+static const BigInt s_coinValueList[] = {
+	200,
+	100,
+	50,
+	20,
+	10,
+	5,
+	2,
+	1,
+};
+
+static const BigInt s_numCoins = sizeof(s_coinValueList) / sizeof(s_coinValueList[0]);
+
+void IterateCoinSums(BigInt* coinCountsList, BigInt currSum, BigInt goalSum, BigInt coinIndex, BigInt& numWays) {
+	const BigInt remainingSum = goalSum - currSum;
+	const BigInt currCoinValue = s_coinValueList[coinIndex];
+	const BigInt maxNumThisCoin = remainingSum / currCoinValue;
+
+	for (BigInt numThisCoin = maxNumThisCoin; numThisCoin >= 0; --numThisCoin) {
+		coinCountsList[coinIndex] = numThisCoin;
+
+		const BigInt totalValueThisCoin = currCoinValue * numThisCoin;
+		const BigInt newSum = currSum + totalValueThisCoin;
+
+		if (newSum >= goalSum) {
+			if (newSum == goalSum) {
+				++numWays;
+				printf("Found valid coin sum:  ");
+				for (BigInt i = 0; i < s_numCoins; ++i) {
+					const BigInt thisCount = coinCountsList[i];
+					if (thisCount > 0) {
+						printf("%lld x %lld  ", thisCount, s_coinValueList[i]);
+					}
+				}
+				printf("\n");
+			}
+		}
+		else if (coinIndex < s_numCoins - 1) {
+			IterateCoinSums(coinCountsList, newSum, goalSum, coinIndex + 1, numWays);
+		}
+	}
+
+	coinCountsList[coinIndex] = 0;
+}
+
+BigInt CalcCoinSumWays(BigInt sum) {
+	BigInt numWays = 0;
+
+	std::vector<BigInt> coinCountsList;
+	coinCountsList.resize(s_numCoins, 0);
+	IterateCoinSums(coinCountsList.data(), 0, sum, 0, numWays);
+
+	return numWays;
+}
+
+void RunCoinSums(BigInt sum) {
+	printf("The coin sum %lld can be made in %lld different ways\n", sum, CalcCoinSumWays(sum));
+}
+
+
+
+
+////////////////////////////
 ////////////////////////////
 // Main
 
@@ -2611,6 +2676,12 @@ int main(int argc, char** argv) {
 		RunDigitPowers(3);
 		RunDigitPowers(4);
 		RunDigitPowers(5);
+		break;
+	case 31:
+		//RunCoinSums(3);
+		//RunCoinSums(7);
+		//RunCoinSums(41);
+		RunCoinSums(200);
 		break;
 	default:
 		printf("'%s' is not a valid problem number!\n\n", problemArg);
