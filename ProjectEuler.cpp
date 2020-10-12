@@ -2494,6 +2494,82 @@ void RunCoinSums(BigInt sum) {
 
 
 
+////////////////////////////
+// Problem 32 - Pandigital Products
+
+void CalcPandigitalSequenceNums(const char* sequence, BigInt numDigitsLeft, BigInt numDigitsRight, BigInt& left, BigInt& right, BigInt& prod) {
+	left = 0;
+	for (BigInt i = 0; i < numDigitsLeft; ++i, ++sequence) {
+		left = (left * 10) + (BigInt)(*sequence - '0');
+	}
+
+	right = 0;
+	for (BigInt i = 0; i < numDigitsRight; ++i, ++sequence) {
+		right = (right * 10) + (BigInt)(*sequence - '0');
+	}
+
+	prod = 0;
+	const BigInt numDigitsProd = 9 - numDigitsLeft - numDigitsRight;
+	for (BigInt i = 0; i < numDigitsProd; ++i, ++sequence) {
+		prod = (prod * 10) + (BigInt)(*sequence - '0');
+	}
+}
+
+void IteratePandigitalProducts(const char* sequence, BigInt& sum, std::set<BigInt>& set) {
+	for (BigInt numDigitsLeft = 1; numDigitsLeft <= 4; ++numDigitsLeft) {
+		for (BigInt numDigitsRight = 1, numDigitsProd = 9 - numDigitsLeft - numDigitsRight;
+			numDigitsProd >= numDigitsLeft && numDigitsProd >= numDigitsRight;
+			++numDigitsRight, --numDigitsProd) {
+			BigInt left = 0;
+			BigInt right = 0;
+			BigInt prod = 0;
+			CalcPandigitalSequenceNums(sequence, numDigitsLeft, numDigitsRight, left, right, prod);
+
+			if (prod == left * right) {
+				if (set.find(prod) == set.end()) {
+					printf("Found new valid prod:  %lld * %lld = %lld;  sum %lld = %lld + %lld\n", left, right, prod, sum + prod, sum, prod);
+					sum += prod;
+					set.insert(prod);
+				}
+				else {
+					printf("Found valid prod:  %lld * %lld = %lld, but prod is already in set\n", left, right, prod);
+				}
+			}
+			/*
+			else {
+				printf("%lld * %lld != %lld\n", left, right, prod);
+			}
+			*/
+		}
+	}
+
+}
+
+void IteratePandigitalSequences(BigInt& sum, std::set<BigInt>& set) {
+	std::string st = "123456789";
+
+	char* begin = &st[0];
+	char* end = begin + st.length();
+	RecurseLexicoPermut(
+		begin, begin, end,
+		[&](const char* st) {
+			IteratePandigitalProducts(st, sum, set);
+			return true;
+		});
+}
+
+BigInt CalcPandigitalProductSum() {
+	BigInt sum = 0;
+	std::set<BigInt> products;
+	IteratePandigitalSequences(sum, products);
+	return sum;
+}
+
+void RunPandigitalProducts() {
+	printf("The sum of pandigital products is %lld\n", CalcPandigitalProductSum());
+}
+
+
 
 ////////////////////////////
 ////////////////////////////
@@ -2682,6 +2758,9 @@ int main(int argc, char** argv) {
 		//RunCoinSums(7);
 		//RunCoinSums(41);
 		RunCoinSums(200);
+		break;
+	case 32:
+		RunPandigitalProducts();
 		break;
 	default:
 		printf("'%s' is not a valid problem number!\n\n", problemArg);
