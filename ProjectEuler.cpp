@@ -2600,6 +2600,60 @@ void RunDigitCancellingFractions() {
 
 
 ////////////////////////////
+// Problem 34 - Digit Factorials
+
+BigInt CalcFactorial(BigInt num) {
+	if (num <= 1) {
+		return 1;
+	}
+
+	BigInt prod = 1;
+	for (BigInt i = num; i >= 2; --i) {
+		prod *= i;
+	}
+
+	return prod;
+}
+
+BigInt CalcFactorialSum(BigInt num) {
+	static BigInt s_digitFactorial[] = {
+		CalcFactorial(0),
+		CalcFactorial(1),
+		CalcFactorial(2),
+		CalcFactorial(3),
+		CalcFactorial(4),
+		CalcFactorial(5),
+		CalcFactorial(6),
+		CalcFactorial(7),
+		CalcFactorial(8),
+		CalcFactorial(9),
+	};
+
+	BigInt sum = 0;
+	while (num > 0) {
+		const lldiv_t div = lldiv(num, 10);
+		sum += s_digitFactorial[div.rem];
+		num = div.quot;
+	}
+
+	return sum;
+}
+
+void RunDigitFactorials() {
+	BigInt sum = 0;
+	for (BigInt i = 10; i <= 9999999LL; ++i) {
+		if (i == CalcFactorialSum(i)) {
+			printf("%lld = sum of factorials of its digits\n", i);
+			sum += i;
+		}
+	}
+
+	printf("Sum of all numbers equal to the sum of the factorials of their digits = %lld\n", sum);
+}
+
+
+
+////////////////////////////
 ////////////////////////////
 // Main
 
@@ -2792,6 +2846,9 @@ int main(int argc, char** argv) {
 		break;
 	case 33:
 		RunDigitCancellingFractions();
+		break;
+	case 34:
+		RunDigitFactorials();
 		break;
 	default:
 		printf("'%s' is not a valid problem number!\n\n", problemArg);
