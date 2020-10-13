@@ -2654,6 +2654,61 @@ void RunDigitFactorials() {
 
 
 ////////////////////////////
+// Problem 35 - Circular primes
+
+BigInt Rotate(BigInt num, BigInt highPlace) {
+	const lldiv_t div = lldiv(num, 10);
+	return div.quot + highPlace * div.rem;
+}
+
+bool IsCircularPrime(BigInt num) {
+	if (!s_primeCache.IsPrime(num)) {
+		//printf("%lld <- not prime\n", num);
+		return false;
+	}
+
+	const BigInt numDigits = (BigInt)ceil(log10(num));
+	const BigInt highPlace = (BigInt)pow(10.0, numDigits - 1);
+
+	const BigInt origNum = num;
+	printf("%lld ", num);
+	for (;;) {
+		num = Rotate(num, highPlace);
+		if (num == origNum) {
+			printf(":  all primes!\n");
+			return true;
+		}
+
+		printf("%lld ", num);
+
+		if (!s_primeCache.IsPrime(num)) {
+			printf("<- not prime\n");
+			return false;
+		}
+	}
+}
+
+BigInt CalcNumCircularPrimes(BigInt max) {
+	BigInt count = 0;
+
+	s_primeCache.IsPrime(max - 1);
+	for (BigInt i = 2; i < max; ++i) {
+		if (IsCircularPrime(i)) {
+			++count;
+		}
+	}
+
+	return count;
+}
+
+void RunCircularPrimes(BigInt max) {
+	printf("Num circular primes under %lld = %lld\n", max, CalcNumCircularPrimes(max));
+}
+
+
+
+
+////////////////////////////
 ////////////////////////////
 // Main
 
@@ -2849,6 +2904,11 @@ int main(int argc, char** argv) {
 		break;
 	case 34:
 		RunDigitFactorials();
+		break;
+	case 35:
+		//RunCircularPrimes(100);
+		//RunCircularPrimes(10000);
+		RunCircularPrimes(1000000);
 		break;
 	default:
 		printf("'%s' is not a valid problem number!\n\n", problemArg);
