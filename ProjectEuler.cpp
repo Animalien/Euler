@@ -2572,6 +2572,34 @@ void RunPandigitalProducts() {
 
 
 ////////////////////////////
+// Problem 33 - Digit Cancelling Fractions
+
+void RunDigitCancellingFractions() {
+	BigInt prodNumer = 1;
+	BigInt prodDenom = 1;
+	for (BigInt i = 1; i <= 8; ++i) {
+		for (BigInt j = i + 1; j <= 9; ++j) {
+			for (BigInt k = i + 1; k <= 9; ++k) {
+				if (k != j) {
+					const BigInt numer = i * 10 + j;
+					const BigInt denom = j * 10 + k;
+
+					if (numer * k == denom * i) {
+						printf("%lld%lld / %lld%lld\n", i, j, j, k);
+						prodNumer *= i;
+						prodDenom *= k;
+					}
+				}
+			}
+		}
+	}
+
+	printf("Product = %lld / %lld\n", prodNumer, prodDenom);
+}
+
+
+
+////////////////////////////
 ////////////////////////////
 // Main
 
@@ -2761,6 +2789,9 @@ int main(int argc, char** argv) {
 		break;
 	case 32:
 		RunPandigitalProducts();
+		break;
+	case 33:
+		RunDigitCancellingFractions();
 		break;
 	default:
 		printf("'%s' is not a valid problem number!\n\n", problemArg);
