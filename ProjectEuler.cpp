@@ -2707,6 +2707,72 @@ void RunCircularPrimes(BigInt max) {
 
 
 
+////////////////////////////
+// Problem 36 - Double base palindromes
+
+bool IsPalindromic(BigInt num, BigInt base) {
+	assert(num >= 0);
+	if (num <= 1) {
+		//printf("%lld in base %lld -- YES palindromic!\n", num, base);
+		return true;
+	}
+
+	double log = log10(num + 1);
+	if (base != 10) {
+		log /= log10(base);
+	}
+	//printf("Log base %lld of %lld+1 = %f\n", base, num, log);
+
+	BigInt numDigits = (BigInt)ceil(log);
+	if (numDigits <= 1) {
+		//printf("%lld in base %lld -- YES palindromic!\n", num, base);
+		return true;
+	}
+
+	BigInt highPlace = (BigInt)pow(base, numDigits - 1);
+
+	//printf("%lld in base %lld, numDigits %lld, highPlace %lld: ", num, base, numDigits, highPlace);
+	while (numDigits > 1) {
+		const lldiv_t topDiv = lldiv(num, highPlace);
+		const lldiv_t bottomDiv = lldiv(topDiv.rem, base);
+
+		const BigInt topDigit = topDiv.quot;
+		const BigInt bottomDigit = bottomDiv.rem;
+
+		//printf("%lld vs %lld ", topDigit, bottomDigit);
+
+		if (topDigit != bottomDigit) {
+			//printf("-- NOT palindromic!\n");
+			return false;
+		}
+
+		num = bottomDiv.quot;
+		numDigits -= 2;
+		highPlace /= base;
+		highPlace /= base;
+	}
+
+	//printf("-- YES palindromic!\n");
+
+	return true;
+}
+
+BigInt CalcSumDoubleBasePalindromes(BigInt max) {
+	BigInt sum = 0;
+	for (BigInt i = 0; i < max; ++i) {
+		if (IsPalindromic(i, 10) && IsPalindromic(i, 2)) {
+			printf("sum %lld = %lld + %lld\n", sum + i, sum, i);
+			sum += i;
+		}
+	}
+	return sum;
+}
+
+void RunDoubleBasePalindromes(BigInt max) {
+	printf("The sum of double base palindromes under %lld = %lld\n", max, CalcSumDoubleBasePalindromes(max));
+}
+
+
 
 ////////////////////////////
 ////////////////////////////
@@ -2909,6 +2975,12 @@ int main(int argc, char** argv) {
 		//RunCircularPrimes(100);
 		//RunCircularPrimes(10000);
 		RunCircularPrimes(1000000);
+		break;
+	case 36:
+		//RunDoubleBasePalindromes(20);
+		//RunDoubleBasePalindromes(100);
+		//RunDoubleBasePalindromes(1000);
+		RunDoubleBasePalindromes(1000000);
 		break;
 	default:
 		printf("'%s' is not a valid problem number!\n\n", problemArg);
