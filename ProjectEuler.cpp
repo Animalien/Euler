@@ -2775,6 +2775,83 @@ void RunDoubleBasePalindromes(BigInt max) {
 
 
 ////////////////////////////
+// Problem 37 - Truncatable primes
+
+bool IsTruncatablePrime(BigInt num) {
+	const double log = log10(num + 1);
+	BigInt numDigits = (BigInt)ceil(log);
+	if (numDigits <= 1) {
+		return false;
+	}
+
+	if (!s_primeCache.IsPrime(num)) {
+		return false;
+	}
+
+	//printf("%lld ", num);
+	const BigInt origNum = num;
+
+	num /= 10;
+
+	do {
+		//printf("%lld ", num);
+		if (!s_primeCache.IsPrime(num)) {
+			//printf("<- NOT prime\n");
+			return false;
+		}
+
+		num /= 10;
+	} while (num > 0);
+
+	num = origNum;
+	BigInt highPlace = (BigInt)pow(10.0, numDigits - 1);
+
+	num %= highPlace;
+	--numDigits;
+	highPlace /= 10;
+
+	do {
+		//printf("%lld ", num);
+		if (!s_primeCache.IsPrime(num)) {
+			//printf("<- NOT prime\n");
+			return false;
+		}
+
+		num %= highPlace;
+		--numDigits;
+		highPlace /= 10;
+	} while (numDigits > 0);
+
+	//printf(" <- ALL primes!\n");
+
+	return true;
+}
+
+BigInt CalcSumTruncatablePrimes(BigInt numTruncatables) {
+	BigInt sum = 0;
+	BigInt num = 11;
+	while (numTruncatables > 0) {
+		if (IsTruncatablePrime(num)) {
+			sum += num;
+			printf("Found truncatable prime %lld;  sum = %lld\n", num, sum);
+			--numTruncatables;
+		}
+		++num;
+	}
+	return sum;
+}
+
+void TestTruncatablePrime(BigInt num) {
+	printf("%lld is%s a truncatable prime!\n", num, IsTruncatablePrime(num) ? "" : " NOT");
+}
+
+void RunTruncatablePrimes(BigInt numTruncatables) {
+	printf("The sum of the %lld first truncatable primes = %lld\n", numTruncatables, CalcSumTruncatablePrimes(numTruncatables));
+}
+
+
+
+////////////////////////////
 ////////////////////////////
 // Main
 
@@ -2981,6 +3058,16 @@ int main(int argc, char** argv) {
 		//RunDoubleBasePalindromes(100);
 		//RunDoubleBasePalindromes(1000);
 		RunDoubleBasePalindromes(1000000);
+		break;
+	case 37:
+		TestTruncatablePrime(3797);
+		//RunTruncatablePrimes(3);
+		//RunTruncatablePrimes(6);
+		//RunTruncatablePrimes(8);
+		//RunTruncatablePrimes(9);
+		//RunTruncatablePrimes(10);
+		RunTruncatablePrimes(11);
+		//RunTruncatablePrimes(12);
 		break;
 	default:
 		printf("'%s' is not a valid problem number!\n\n", problemArg);
