@@ -2852,6 +2852,99 @@ void RunTruncatablePrimes(BigInt numTruncatables) {
 
 
 ////////////////////////////
+// Problem 38 - Pandigital multiples
+
+BigInt CalcSubstringNumber(const char* st, BigInt length) {
+	BigInt num = 0;
+	for (BigInt i = 0; i < length; ++i) {
+		const BigInt digit = (BigInt)st[i] - (BigInt)'0';
+		num = num * 10 + digit;
+	}
+	return num;
+}
+
+bool IsSubstringEqualToNumber(const char*& st, const char* end, BigInt num) {
+	BigInt testNum = 0;
+	while (st < end) {
+		const BigInt digit = (BigInt)*st - (BigInt)'0';
+		++st;
+
+		testNum = testNum * 10 + digit;
+
+		if (testNum == num) {
+			return true;
+		}
+
+		if (testNum > num) {
+			return false;
+		}
+	}
+
+	return false;
+}
+
+bool IsPandigitalMultiple(const char* st, BigInt length) {
+	printf("Testing pandigital:  %s\n", st);
+
+	const char* end = st + length;
+	const BigInt halfLen = length / 2;
+	for (BigInt i = 0; i <= halfLen; ++i) {
+		const BigInt numStartDigits = i + 1;
+
+		const BigInt num = CalcSubstringNumber(st, numStartDigits);
+		printf("  %.*s ", (int)numStartDigits, st);
+
+		const char* subSt = st + numStartDigits;
+		BigInt testNum = num * 2;
+		for (;;) {
+			const char* startSubSt = subSt;
+			if (!IsSubstringEqualToNumber(subSt, end, testNum)) {
+				printf(" <- does not work\n");
+				break;
+			}
+
+			printf("  %.*s ", (int)(subSt - startSubSt), startSubSt);
+			if (subSt == end) {
+				printf(" <- IT WORKS!\n");
+				return true;
+			}
+
+			testNum += num;
+		}
+	}
+
+	printf("  NOT PANDIGITAL\n");
+	return false;
+}
+
+std::string FindPandigitalMultiple() {
+	std::string sequence = "987654321";
+	std::string foundPandigital = "";
+
+	const BigInt sequenceLength = sequence.length();
+	char* begin = &sequence[0];
+	char* end = begin + sequenceLength;
+	RecurseLexicoPermut(
+		begin, begin, end,
+		[&](const char* st) {
+			if (IsPandigitalMultiple(st, sequenceLength)) {
+				foundPandigital = sequence;
+				return false;
+			}
+
+			return true;
+		});
+
+	return foundPandigital;
+}
+
+void RunPandigitalMultiples() {
+	printf("Largest pandigital multiple = %s\n", FindPandigitalMultiple().c_str());
+}
+
+
+
+////////////////////////////
 ////////////////////////////
 // Main
 
@@ -3068,6 +3161,9 @@ int main(int argc, char** argv) {
 		//RunTruncatablePrimes(10);
 		RunTruncatablePrimes(11);
 		//RunTruncatablePrimes(12);
+		break;
+	case 38:
+		RunPandigitalMultiples();
 		break;
 	default:
 		printf("'%s' is not a valid problem number!\n\n", problemArg);
