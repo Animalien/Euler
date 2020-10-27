@@ -2945,6 +2945,57 @@ void RunPandigitalMultiples() {
 
 
 ////////////////////////////
+// Problem 39 - Integer right triangles
+
+BigInt CalcNumIntegerRightTriangleSolutions(BigInt perimeter) {
+	BigInt numSolutions = 0;
+
+	printf("Perimeter %lld:\n", perimeter);
+
+	static const double onePlusSqrt2 = 1.0 + sqrt(2.0);
+	const BigInt minLargeSize = (BigInt)((double)perimeter / onePlusSqrt2);
+	const BigInt maxLargeSide = perimeter / 2 + 1;
+	for (BigInt largeSide = minLargeSize; largeSide <= maxLargeSide; ++largeSide) {
+		const BigInt leftOver = perimeter - largeSide;
+		const BigInt maxFirstSmallSide = leftOver / 2;
+		for (BigInt firstSmallSide = 1; firstSmallSide <= maxFirstSmallSide; ++firstSmallSide) {
+			const BigInt secondSmallSide = leftOver - firstSmallSide;
+			if ((firstSmallSide * firstSmallSide + secondSmallSide * secondSmallSide) == (largeSide * largeSide)) {
+				++numSolutions;
+				printf("  %lld, %lld, %lld\n", firstSmallSide, secondSmallSide, largeSide);
+			}
+		}
+	}
+
+	return numSolutions;
+}
+
+void TestIntegerRightTriangles(BigInt perimeter) {
+	printf("The number of integer right triangle solutions for perimeter %lld = %lld\n", perimeter, CalcNumIntegerRightTriangleSolutions(perimeter));
+}
+
+BigInt CalcPerimeterMaxNumIntegerRightTriangleSolutions(BigInt max) {
+	BigInt perimeterOfMax = 0;
+	BigInt maxNumSolutions = 0;
+
+	for (BigInt perimeter = 3; perimeter <= max; ++perimeter) {
+		const BigInt numSolutions = CalcNumIntegerRightTriangleSolutions(perimeter);
+		if (numSolutions > maxNumSolutions) {
+			maxNumSolutions = numSolutions;
+			perimeterOfMax = perimeter;
+		}
+	}
+
+	return perimeterOfMax;
+}
+
+void RunIntegerRightTriangles(BigInt max) {
+	printf("Perimeter of max number integer right triangle solutions <= %lld = %lld\n", max, CalcPerimeterMaxNumIntegerRightTriangleSolutions(max));
+}
+
+
+
+////////////////////////////
 ////////////////////////////
 // Main
 
@@ -3164,6 +3215,12 @@ int main(int argc, char** argv) {
 		break;
 	case 38:
 		RunPandigitalMultiples();
+		break;
+	case 39:
+		TestIntegerRightTriangles(120);
+		//RunIntegerRightTriangles(100);
+		//RunIntegerRightTriangles(500);
+		RunIntegerRightTriangles(1000);
 		break;
 	default:
 		printf("'%s' is not a valid problem number!\n\n", problemArg);
