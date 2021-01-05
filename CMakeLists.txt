@@ -6,5 +6,6 @@ add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 
 add_executable(ProjectEuler
 	ProjectEuler.cpp
+	_clang-format
 )
 
