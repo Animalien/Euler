@@ -3,7 +3,7 @@ AccessModifierOffset: -4
 AlignAfterOpenBracket: AlwaysBreak
 AlignConsecutiveAssignments: false
 # AlignConsecutiveBitFields: true
-AlignConsecutiveDeclarations: true
+AlignConsecutiveDeclarations: false
 AlignConsecutiveMacros: true
 AlignEscapedNewlines: Left
 AlignOperands: true
