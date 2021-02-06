@@ -3415,6 +3415,76 @@ void RunIntegerRightTriangles(BigInt max)
 
 
 ////////////////////////////
+// Problem 40 - Champernowne's Constant
+
+void AppendNumberToString(std::string& st, BigInt number)
+{
+    static std::string workString;
+    workString.reserve(16);
+    workString.clear();
+
+    while (number > 0)
+    {
+        const lldiv_t div = lldiv(number, 10);
+        workString += (char)(div.rem + '0');
+
+        number = div.quot;
+    }
+
+    std::reverse(workString.begin(), workString.end());
+
+    st += workString;
+}
+
+void BuildChampernownesDigits(std::string& st, BigInt numDigits)
+{
+    BigInt number = 1;
+    while (numDigits > (BigInt)st.length())
+    {
+        AppendNumberToString(st, number);
+        ++number;
+    }
+}
+
+BigInt GetChampernowneDigit(const std::string& st, BigInt digitNum)
+{
+    assert((BigInt)st.length() >= digitNum);
+    return (BigInt)(int8_t)st[digitNum-1] - '0';
+}
+
+BigInt CalcProdChampernownesDigits(BigInt numPowersOf10, bool printAllDigits)
+{
+    const BigInt maxDigitNum = (BigInt)pow(10.0, numPowersOf10);
+
+    std::string digits;
+    BuildChampernownesDigits(digits, maxDigitNum);
+    if (printAllDigits)
+        printf("The digits:  %s\n", digits.c_str());
+
+    BigInt product = 1;
+    BigInt digitNum = 1;
+    for (BigInt i = 0; i < numPowersOf10; ++i, digitNum *= 10)
+    {
+        const BigInt digit = GetChampernowneDigit(digits, digitNum);
+        printf("Multiplying product %lld by digit #%lld which is %lld\n", product, digitNum, digit);
+        product *= digit;
+    }
+
+    return product;
+}
+
+void RunChampernownesConstant(BigInt numPowersOf10, bool printAllDigits)
+{
+    printf(
+        "Product of Champernowne digits up to %lld power of 10 = %lld\n",
+        numPowersOf10,
+        CalcProdChampernownesDigits(numPowersOf10, printAllDigits));
+}
+
+
+
+
+////////////////////////////
 ////////////////////////////
 // Main
 
@@ -3648,6 +3718,10 @@ int main(int argc, char** argv)
             //RunIntegerRightTriangles(100);
             //RunIntegerRightTriangles(500);
             RunIntegerRightTriangles(1000);
+            break;
+        case 40:
+            //RunChampernownesConstant(3, true);
+            RunChampernownesConstant(7, false);
             break;
         default:
             printf("'%s' is not a valid problem number!\n\n", problemArg);
