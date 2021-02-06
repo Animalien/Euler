@@ -120,12 +120,12 @@ public:
 private:
     iterator NewFactorize(BigInt num)
     {
-        auto           newValue = insert(value_type(num, Factorization()));
-        iterator       newIter = newValue.first;
+        auto newValue = insert(value_type(num, Factorization()));
+        iterator newIter = newValue.first;
         Factorization& newFactorization = newIter->second;
 
         const BigInt halfNum = num / 2;
-        BigInt       prodRemaining = num;
+        BigInt prodRemaining = num;
         for (BigInt i = 2; i <= halfNum; ++i)
         {
             const Factorization& f = Factorize(i);
@@ -307,8 +307,8 @@ private:
         }
     }
 
-    BigInt            m_windowBase;
-    BigInt            m_windowOffset;
+    BigInt m_windowBase;
+    BigInt m_windowOffset;
     std::vector<bool> m_windowFlags;
 };
 
@@ -396,7 +396,7 @@ public:
         m_string.push_back((char)(digit + '0'));
     }
 
-    void        Print() const { printf("%s", GetString()); }
+    void Print() const { printf("%s", GetString()); }
     const char* GetString() const
     {
         SetForwards();
@@ -422,7 +422,7 @@ public:
 
     BigInt CalcSumDigits() const
     {
-        BigInt        sum = 0;
+        BigInt sum = 0;
         ConstIterator iter(*this);
         while (!iter.IsAtEnd())
         {
@@ -472,7 +472,7 @@ public:
             const BigInt num = digit * rightSide + carryOver;
 
             const lldiv_t divRem = lldiv(num, 10);
-            const char    outputDigit = (char)(divRem.rem + '0');
+            const char outputDigit = (char)(divRem.rem + '0');
             m_string.push_back(outputDigit);
 
             carryOver = divRem.quot;
@@ -481,7 +481,7 @@ public:
         while (carryOver > 0)
         {
             const lldiv_t divRem = lldiv(carryOver, 10);
-            const char    outputDigit = (char)(divRem.rem + '0');
+            const char outputDigit = (char)(divRem.rem + '0');
             m_string.push_back(outputDigit);
 
             carryOver = divRem.quot;
@@ -641,9 +641,9 @@ private:
 
     private:
         const std::string& m_string;
-        BigInt             m_index;
-        BigInt             m_endIndex;
-        BigInt             m_increment;
+        BigInt m_index;
+        BigInt m_endIndex;
+        BigInt m_increment;
     };
 
     class ListIterator
@@ -686,9 +686,9 @@ private:
         }
 
     private:
-        const HugeInt*        m_ptr;
+        const HugeInt* m_ptr;
         const HugeInt* const* m_ptrptr;
-        BigInt                m_num;
+        BigInt m_num;
     };
 
     static HugeInt GetCalcedSum(ListIterator& listIter)
@@ -719,7 +719,7 @@ private:
 
         for (;;)
         {
-            bool   haveMoreDigits = false;
+            bool haveMoreDigits = false;
             BigInt digitSum = carryOver;
 
             for (auto iterListIter = iterList.begin(); iterListIter != iterList.end(); ++iterListIter)
@@ -740,7 +740,7 @@ private:
             }
 
             const lldiv_t divRem = lldiv(digitSum, 10);
-            const char    newDigit = (char)(divRem.rem + '0');
+            const char newDigit = (char)(divRem.rem + '0');
             m_string += newDigit;
 
             carryOver = divRem.quot;
@@ -748,7 +748,7 @@ private:
     }
 
     mutable std::string m_string;
-    mutable bool        m_backwards;
+    mutable bool m_backwards;
 };
 
 
@@ -777,12 +777,12 @@ void TestHugeInt()
         product3.GetString());
 
     HugeInt numer1 = 1000;
-    BigInt  denom1 = 200;
+    BigInt denom1 = 200;
     HugeInt numer2 = 3;
-    BigInt  denom2 = 5;
+    BigInt denom2 = 5;
     HugeInt numer3 = 146;
-    BigInt  denom3 = 12;
-    BigInt  remainder1, remainder2, remainder3;
+    BigInt denom3 = 12;
+    BigInt remainder1, remainder2, remainder3;
     HugeInt quot1, quot2, quot3;
 
     quot1.SetToDivision(numer1, denom1, &remainder1);
@@ -1213,7 +1213,7 @@ void RunSummationOfPrimes(BigInt max)
 // Problem 11 - Largest grid product
 
 static const BigInt s_largestGridGridSize = 20;
-static BigInt       s_largestGridGrid[s_largestGridGridSize][s_largestGridGridSize] = {
+static BigInt s_largestGridGrid[s_largestGridGridSize][s_largestGridGridSize] = {
     { 8, 2, 22, 97, 38, 15, 0, 40, 0, 75, 4, 5, 7, 78, 52, 12, 50, 77, 91, 8 },
     { 49, 49, 99, 40, 17, 81, 18, 57, 60, 87, 17, 40, 98, 43, 69, 48, 4, 56, 62, 0 },
     { 81, 49, 31, 73, 55, 79, 14, 29, 93, 71, 40, 67, 53, 88, 30, 3, 49, 13, 36, 65 },
@@ -1247,8 +1247,8 @@ BigInt
     BigInt numZeroes = 0;
 
     std::deque<BigInt> deque;
-    BigInt             xPos = xStart;
-    BigInt             yPos = yStart;
+    BigInt xPos = xStart;
+    BigInt yPos = yStart;
     for (BigInt i = 0; i < sliceLength; ++i)
     {
         // deincorporate oldest factor
@@ -1430,7 +1430,7 @@ BigInt CalcFirstHighlyDivTriNumber(BigInt moreThanNumDivisors, bool verbose)
         nextNaturalNumber++;
 
         const Factorization& f = s_factorizationCache.Factorize(triangleNumber);
-        BigInt               numDivisors = f.CalcNumDivisors();
+        BigInt numDivisors = f.CalcNumDivisors();
         if (numDivisors > moreThanNumDivisors)
         {
             printf("\nFound more than %lld divisors (%lld).  Prime factors:  ", moreThanNumDivisors, numDivisors);
@@ -1721,7 +1721,7 @@ BigInt CalcNumberLetters(BigInt num, bool verbose)
     assert(num <= 1000);
 
     const BigInt origNum = num;
-    BigInt       numLetters = 0;
+    BigInt numLetters = 0;
 
     bool hadThousandsOrHundreds = false;
 
@@ -1738,7 +1738,7 @@ BigInt CalcNumberLetters(BigInt num, bool verbose)
         }
     }
 
-    lldiv_t      divRem = lldiv(num, 100);
+    lldiv_t divRem = lldiv(num, 100);
     const BigInt numHundreds = divRem.quot;
     if (numHundreds > 0)
     {
@@ -1845,15 +1845,15 @@ static BigInt s_maxPathSum1BigTri[] = {
 
 struct MaxTriPathNode
 {
-    BigInt              total;
+    BigInt total;
     std::vector<BigInt> path;
 };
 
 void IterateMaxPath(
-    BigInt                             nextRowSize,
+    BigInt nextRowSize,
     const std::vector<MaxTriPathNode>& prevRow,
-    std::vector<MaxTriPathNode>&       nextRow,
-    const BigInt*                      nextRowSource)
+    std::vector<MaxTriPathNode>& nextRow,
+    const BigInt* nextRowSource)
 {
     nextRow.resize(nextRowSize);
 
@@ -1871,7 +1871,7 @@ void IterateMaxPath(
             }
         }
 
-        const BigInt    nextRowSourceValue = nextRowSource[i];
+        const BigInt nextRowSourceValue = nextRowSource[i];
         MaxTriPathNode& nextNode = nextRow[i];
         if (chosenPrevNode)
         {
@@ -2154,7 +2154,7 @@ void LoadNames(std::vector<std::string>& list)
     assert(file);
 
     std::string currString;
-    int         c = 0;
+    int c = 0;
     while ((c = fgetc(file)) != EOF)
     {
         if (c == (int)',')
@@ -2262,7 +2262,7 @@ bool IsAbundant(BigInt num)
     }
 
     const BigInt sumProperDivisors = CalcSumProperDivisors(num, false);
-    const bool   isAbundant = (sumProperDivisors > num);
+    const bool isAbundant = (sumProperDivisors > num);
 
     /*
 	printf("%lld sum of proper divisors = %lld, ", num, sumProperDivisors);
@@ -2377,9 +2377,9 @@ void RunLexicographicPermutations(const std::string& origSt, BigInt desiredPermu
 {
     std::string st = origSt;
 
-    char*        begin = &st[0];
-    char*        end = begin + st.length();
-    BigInt       index = 0;
+    char* begin = &st[0];
+    char* end = begin + st.length();
+    BigInt index = 0;
     const BigInt desiredPermutIndex = desiredPermut - 1;
     RecurseLexicoPermut(begin, begin, end, [&](const char* st) {
         //printf("permut[%lld] = %s\n", index, st);
@@ -2416,7 +2416,7 @@ void RunNDigitFibonacci(BigInt numDigits)
     HugeInt num;
     HugeInt prev = 1;
     HugeInt prevPrev = 1;
-    BigInt  fibNum = 3;
+    BigInt fibNum = 3;
 
     for (;;)
     {
@@ -2484,7 +2484,7 @@ BigInt CalcReciprocalCycleLength(BigInt denom)
             nines.AppendDigit(9);
 
             HugeInt div;
-            BigInt  remainder;
+            BigInt remainder;
             div.SetToDivision(nines, denom, &remainder);
 
             if (remainder == 0)
@@ -2912,7 +2912,7 @@ void IteratePandigitalSequences(BigInt& sum, std::set<BigInt>& set)
 
 BigInt CalcPandigitalProductSum()
 {
-    BigInt           sum = 0;
+    BigInt sum = 0;
     std::set<BigInt> products;
     IteratePandigitalSequences(sum, products);
     return sum;
@@ -3160,7 +3160,7 @@ void RunDoubleBasePalindromes(BigInt max)
 bool IsTruncatablePrime(BigInt num)
 {
     const double log = log10(num + 1);
-    BigInt       numDigits = (BigInt)ceil(log);
+    BigInt numDigits = (BigInt)ceil(log);
     if (numDigits <= 1)
     {
         return false;
@@ -3285,7 +3285,7 @@ bool IsPandigitalMultiple(const char* st, BigInt length)
 {
     printf("Testing pandigital:  %s\n", st);
 
-    const char*  end = st + length;
+    const char* end = st + length;
     const BigInt halfLen = length / 2;
     for (BigInt i = 0; i <= halfLen; ++i)
     {
@@ -3295,7 +3295,7 @@ bool IsPandigitalMultiple(const char* st, BigInt length)
         printf("  %.*s ", (int)numStartDigits, st);
 
         const char* subSt = st + numStartDigits;
-        BigInt      testNum = num * 2;
+        BigInt testNum = num * 2;
         for (;;)
         {
             const char* startSubSt = subSt;
@@ -3326,8 +3326,8 @@ std::string FindPandigitalMultiple()
     std::string foundPandigital = "";
 
     const BigInt sequenceLength = sequence.length();
-    char*        begin = &sequence[0];
-    char*        end = begin + sequenceLength;
+    char* begin = &sequence[0];
+    char* end = begin + sequenceLength;
     RecurseLexicoPermut(begin, begin, end, [&](const char* st) {
         if (IsPandigitalMultiple(st, sequenceLength))
         {
@@ -3358,8 +3358,8 @@ BigInt CalcNumIntegerRightTriangleSolutions(BigInt perimeter)
     printf("Perimeter %lld:\n", perimeter);
 
     static const double onePlusSqrt2 = 1.0 + sqrt(2.0);
-    const BigInt        minLargeSize = (BigInt)((double)perimeter / onePlusSqrt2);
-    const BigInt        maxLargeSide = perimeter / 2 + 1;
+    const BigInt minLargeSize = (BigInt)((double)perimeter / onePlusSqrt2);
+    const BigInt maxLargeSide = perimeter / 2 + 1;
     for (BigInt largeSide = minLargeSize; largeSide <= maxLargeSide; ++largeSide)
     {
         const BigInt leftOver = perimeter - largeSide;
