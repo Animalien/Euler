@@ -124,9 +124,9 @@ private:
         iterator newIter = newValue.first;
         Factorization& newFactorization = newIter->second;
 
-        const BigInt halfNum = num / 2;
+        const BigInt sqrtNum = (BigInt)sqrt(num);
         BigInt prodRemaining = num;
-        for (BigInt i = 2; i <= halfNum; ++i)
+        for (BigInt i = 2; i <= sqrtNum; ++i)
         {
             const Factorization& f = Factorize(i);
             if (f.IsPrime())
@@ -365,6 +365,32 @@ private:
 };
 
 static PrimeCache s_primeCache;
+
+
+////////////////////////////
+// Prime testing
+//
+//      Attempted fast computational testing without caching
+//
+
+bool IsNumberPrime(BigInt num)
+{
+    if (num <= 1)
+        return false;
+    if (num == 2)
+        return true;
+    if (!(num & 1))
+        return false;
+
+    const BigInt sqrtNum = (BigInt)sqrt(num);
+    for (BigInt i = 3; i <= sqrtNum; i += 2)
+    {
+        if (!(num % i))
+            return false;
+    }
+
+    return true;
+}
 
 
 ////////////////////////////
@@ -3449,7 +3475,7 @@ void BuildChampernownesDigits(std::string& st, BigInt numDigits)
 BigInt GetChampernowneDigit(const std::string& st, BigInt digitNum)
 {
     assert((BigInt)st.length() >= digitNum);
-    return (BigInt)(int8_t)st[digitNum-1] - '0';
+    return (BigInt)(int8_t)st[digitNum - 1] - '0';
 }
 
 BigInt CalcProdChampernownesDigits(BigInt numPowersOf10, bool printAllDigits)
@@ -3481,6 +3507,50 @@ void RunChampernownesConstant(BigInt numPowersOf10, bool printAllDigits)
         CalcProdChampernownesDigits(numPowersOf10, printAllDigits));
 }
 
+
+
+////////////////////////////
+// Problem 41 - Pandigital prime
+
+void RunPandigitalPrime()
+{
+    std::string digitString = "987654321";
+    const BigInt digitStringLength = digitString.length();
+
+    for (BigInt i = 0; i < digitStringLength; ++i)
+    {
+        char* begin = &digitString[i];
+        char* end = begin + digitStringLength - i;
+
+        BigInt foundPrime = -1;
+        RecurseLexicoPermut(begin, begin, end, [&](const char* st) {
+            //printf("Testing %s... ", st);
+            const BigInt num = atoi(st);
+
+            if (IsNumberPrime(num))
+            {
+                foundPrime = num;
+                //printf("is PRIME!\n");
+                return false;
+            }
+            else
+            {
+                //printf("is not prime\n");
+                return true;
+            }
+        });
+
+        if (foundPrime > 0)
+        {
+            printf("Found prime %lld!\n", foundPrime);
+            break;
+        }
+        else
+        {
+            printf("Found NO pandigital prime with %lld digits!\n", digitStringLength - i);
+        }
+    }
+}
 
 
 
@@ -3722,6 +3792,9 @@ int main(int argc, char** argv)
         case 40:
             //RunChampernownesConstant(3, true);
             RunChampernownesConstant(7, false);
+            break;
+        case 41:
+            RunPandigitalPrime();
             break;
         default:
             printf("'%s' is not a valid problem number!\n\n", problemArg);
