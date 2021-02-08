@@ -20,7 +20,49 @@
 ////////////////////////////
 // General tools
 
+////////////////////////////
+// Types
+
 typedef long long BigInt;
+
+typedef std::vector<std::string> StringList;
+
+////////////////////////////
+// Strings
+
+static std::string fileNameBase = "..\\Input\\";
+
+void ReadStringList(const char* fileName, StringList& list)
+{
+    list.clear();
+
+    FILE* file = fopen((fileNameBase + fileName).c_str(), "rt");
+    assert(file);
+
+    std::string currString;
+    int c = 0;
+    while ((c = fgetc(file)) != EOF)
+    {
+        if (c == (int)',')
+        {
+            assert(currString.empty());
+        }
+        else if (c == (int)'\"')
+        {
+            if (!currString.empty())
+            {
+                //printf("%s\n", currString.c_str());
+                list.push_back(std::string());
+                currString.swap(list.back());
+                assert(currString.empty());
+            }
+        }
+        else
+        {
+            currString += (char)c;
+        }
+    }
+}
 
 ////////////////////////////
 // Factorization
@@ -2174,34 +2216,7 @@ void RunAmicableNumbers()
 
 void LoadNames(std::vector<std::string>& list)
 {
-    list.clear();
-
-    FILE* file = fopen("p022_names.txt", "rt");
-    assert(file);
-
-    std::string currString;
-    int c = 0;
-    while ((c = fgetc(file)) != EOF)
-    {
-        if (c == (int)',')
-        {
-            assert(currString.empty());
-        }
-        else if (c == (int)'\"')
-        {
-            if (!currString.empty())
-            {
-                //printf("%s\n", currString.c_str());
-                list.push_back(std::string());
-                currString.swap(list.back());
-                assert(currString.empty());
-            }
-        }
-        else
-        {
-            currString += (char)c;
-        }
-    }
+    ReadStringList("p022_names.txt", list);
 }
 
 void SortNames(std::vector<std::string>& list)
@@ -3553,6 +3568,59 @@ void RunPandigitalPrime()
 }
 
 
+////////////////////////////
+// Problem 42 - Coded triangle numbers
+
+BigInt CalcWordValue(const std::string& word)
+{
+    BigInt value = 0;
+
+    for (const auto& c: word)
+    {
+        value += ((BigInt)(c - 'A') + 1LL);
+    }
+
+    return value;
+}
+
+void RunCodedTriangleNumbers()
+{
+    StringList words;
+    ReadStringList("p042_words.txt", words);
+
+    BigInt maxWordLength = 0;
+    for (const auto& word:words)
+    {
+        const BigInt length = word.length();
+        if (length > maxWordLength)
+            maxWordLength = length;
+    }
+
+    const BigInt maxWordValue = maxWordLength * 26;
+
+    std::unordered_set<BigInt> triangleNumberSet;
+    BigInt triangleNumberN = 1;
+    BigInt triangleNumber = 0;
+    while (triangleNumber <= maxWordValue)
+    {
+        triangleNumber = (triangleNumberN * (triangleNumberN + 1)) / 2;
+        ++triangleNumberN;
+
+        triangleNumberSet.insert(triangleNumber);
+    }
+
+    BigInt numTriangleWords = 0;
+    for (const auto& word: words)
+    {
+        const BigInt value = CalcWordValue(word);
+        if (triangleNumberSet.count(value) > 0)
+            ++numTriangleWords;
+    }
+
+    printf("Found %lld triangle words!\n", numTriangleWords);
+}
+
+
 
 ////////////////////////////
 ////////////////////////////
@@ -3795,6 +3863,9 @@ int main(int argc, char** argv)
             break;
         case 41:
             RunPandigitalPrime();
+            break;
+        case 42:
+            RunCodedTriangleNumbers();
             break;
         default:
             printf("'%s' is not a valid problem number!\n\n", problemArg);
