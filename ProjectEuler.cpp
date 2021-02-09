@@ -3589,7 +3589,7 @@ void RunCodedTriangleNumbers()
     ReadStringList("p042_words.txt", words);
 
     BigInt maxWordLength = 0;
-    for (const auto& word:words)
+    for (const auto& word: words)
     {
         const BigInt length = word.length();
         if (length > maxWordLength)
@@ -3618,6 +3618,56 @@ void RunCodedTriangleNumbers()
     }
 
     printf("Found %lld triangle words!\n", numTriangleWords);
+}
+
+
+
+////////////////////////////
+// Problem 43 - Sub-string divisibility
+
+BigInt GetNumberStringDigit(const char* st, BigInt digit)
+{
+    return (BigInt)st[digit - 1] - '0';
+}
+
+bool TestOneSubStringDivisibilityCondition(const char* st, BigInt digit1, BigInt digit2, BigInt digit3, BigInt divisibleBy)
+{
+    const BigInt num =
+        GetNumberStringDigit(st, digit1) * 100 + GetNumberStringDigit(st, digit2) * 10 + GetNumberStringDigit(st, digit3);
+    return !(num % divisibleBy);
+}
+
+bool TestSubStringDivisibility(const char* st)
+{
+    return TestOneSubStringDivisibilityCondition(st, 2, 3, 4, 2) && TestOneSubStringDivisibilityCondition(st, 3, 4, 5, 3)
+           && TestOneSubStringDivisibilityCondition(st, 4, 5, 6, 5) && TestOneSubStringDivisibilityCondition(st, 5, 6, 7, 7)
+           && TestOneSubStringDivisibilityCondition(st, 6, 7, 8, 11) && TestOneSubStringDivisibilityCondition(st, 7, 8, 9, 13)
+           && TestOneSubStringDivisibilityCondition(st, 8, 9, 10, 17);
+}
+
+void RunSubStringDivisibility()
+{
+    std::string digitString = "9876543210";
+    const BigInt digitStringLength = digitString.length();
+
+    char* begin = &digitString[0];
+    char* end = begin + digitStringLength;
+
+    BigInt sum = 0;
+    RecurseLexicoPermut(begin, begin, end, [&](const char* st) {
+        //printf("Testing %s... ", st);
+
+        if (TestSubStringDivisibility(st))
+        {
+            const BigInt num = atoll(st);
+            sum += num;
+            printf("string: %s, sum = sum + %lld = %lld + %lld = %lld\n", st, num, sum - num, num, sum);
+        }
+
+        return true;
+    });
+
+    printf("Sum of pandigital numbers with the property = %lld\n", sum);
 }
 
 
@@ -3866,6 +3916,9 @@ int main(int argc, char** argv)
             break;
         case 42:
             RunCodedTriangleNumbers();
+            break;
+        case 43:
+            RunSubStringDivisibility();
             break;
         default:
             printf("'%s' is not a valid problem number!\n\n", problemArg);
