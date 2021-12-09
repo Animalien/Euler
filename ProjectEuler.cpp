@@ -24,6 +24,8 @@
 // Types
 
 typedef long long BigInt;
+static const BigInt MAX_BIG_INT = LLONG_MAX;
+typedef std::set<BigInt> BigIntSet;
 
 typedef std::vector<std::string> StringList;
 
@@ -3673,6 +3675,61 @@ void RunSubStringDivisibility()
 
 
 ////////////////////////////
+// Problem 44 - Pentagonal numbers
+
+BigInt CalcPentagonalNumber(BigInt n)
+{
+    return n * (3 * n - 1) / 2;
+}
+
+void RunPentagonNumbers()
+{
+    BigInt n = 1;
+    BigIntSet numberSet;
+
+    BigInt bestPairSmall = -1;
+    BigInt bestPairBig = -1;
+    BigInt bestPairDiff = MAX_BIG_INT;
+
+    while (n < 100000)
+    {
+        const BigInt newNumber = CalcPentagonalNumber(n);
+
+        for (auto iter = numberSet.crbegin(); iter != numberSet.crend(); ++iter)
+        {
+            const BigInt thisNumber = *iter;
+
+            const BigInt sum = newNumber + thisNumber;
+            if (numberSet.count(sum) <= 0)
+                continue;
+
+            const BigInt diff = newNumber - thisNumber;
+            if (numberSet.count(diff) <= 0)
+                continue;
+
+            printf("Testing new number %lld\n", newNumber);
+            printf("Found pair number %lld, sum = %lld, diff = %lld\n", thisNumber, sum, diff);
+
+            if (diff > bestPairDiff)
+                continue;
+
+            printf("Pair is best so far!\n");
+
+            bestPairSmall = thisNumber;
+            bestPairBig = newNumber;
+            bestPairDiff = diff;
+
+            break;
+        }
+
+        numberSet.insert(newNumber);
+        ++n;
+    }
+}
+
+
+
+////////////////////////////
 ////////////////////////////
 // Main
 
@@ -3919,6 +3976,9 @@ int main(int argc, char** argv)
             break;
         case 43:
             RunSubStringDivisibility();
+            break;
+        case 44:
+            RunPentagonNumbers();
             break;
         default:
             printf("'%s' is not a valid problem number!\n\n", problemArg);
